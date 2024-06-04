@@ -42,16 +42,16 @@ function main_QS_No_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,mu
     mu_Th_Signal = 0.01
 
     # maximum cellular density (cells per microliter)
-    max_CellDen = 10.^5
+    max_CellDen = 10.0^5
     # minimum cellular density
-    min_CellDen = 10.^1.5
+    min_CellDen = 10.0^1.5
     # median cellular density
     median_CellDen = median([min_CellDen,max_CellDen])
     # baseline volume
     base_Volume = 10.
 
     # signal decay rate
-    decay_Rate = 10.^-4.
+    decay_Rate = 10.0^-4.
 
     # initial testing environments
     env_CellDen = collect(linspace(min_CellDen,max_CellDen,grid_Size))

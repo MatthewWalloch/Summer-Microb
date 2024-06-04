@@ -10,20 +10,21 @@ function eval_genotype(fit_Pop::Vector{Float64},coopPayoff_Pop::Vector{Float64},
         # randomly select mix_Num genotypes
         index_Geno = rand(1:size_Pop,mix_Num)
 
-        pool_CellDen = repmat(env_CellDen,1,mix_Num)
+        pool_CellDen = repeat(env_CellDen,outer=[1,mix_Num])
+
 
         # calculate local signal density for mix_Num genotypes
-        sig_Concentration = sum(cal_Signal_Concentration(repmat(pro_Rate[index_Geno]',grid_Size,1),pool_CellDen,decay_Rate,repmat(auto_R[index_Geno]',grid_Size,1),K),2)./mix_Num
+        sig_Concentration = sum(cal_Signal_Concentration(repeat(pro_Rate[index_Geno]',outer=[grid_Size,1]),pool_CellDen,decay_Rate,repeat(auto_R[index_Geno]',outer=[grid_Size,1]),K),2) ./mix_Num
 
         # individual who turns on cooperation at certain environment
-        coop_ON = repmat(sig_Concentration,1,mix_Num).>repmat((sig_Th[index_Geno])',grid_Size,1)
+        coop_ON = repeat(sig_Concentration,outer=[1,mix_Num]).>repeat((sig_Th[index_Geno])',outer=[grid_Size,1])
 
         # benefit for cooperation
-        coopPayoff_Pop[index_Geno] = repmat(coop_Benefit.*sum(sum(coop_ON,2)./mix_Num.*env_CellDen.*base_Volume.>
-                                     fill(median_CellDen,grid_Size,1).*base_Volume,1),mix_Num,1)
+        coopPayoff_Pop[index_Geno] = repeat(coop_Benefit.*sum(sum(coop_ON,2)./mix_Num.*env_CellDen.*base_Volume.>
+                                     fill(median_CellDen,grid_Size,1).*base_Volume,1),outer=[mix_Num,1])
 
         # efficiency for cooperation
-        coopEff_Pop[index_Geno] = sum(coop_ON.==repmat(env_CellDen.>median_CellDen,1,mix_Num),1)/Float64(grid_Size)
+        coopEff_Pop[index_Geno] = sum(coop_ON.==repeat(env_CellDen.>median_CellDen,outer=[1,mix_Num]),1)/Float64(grid_Size)
 
         # cost for cooperation
         coopCost_Pop[index_Geno] = coop_Cost.*sum(coop_ON,1)'

@@ -9,11 +9,12 @@
 # mu_Cheats: parameter used in the zero-truncated Poisson distribution for
 #            generating number of cheaters 
 # rep_Num: index number of replications
+using Random, Statistics, LinearAlgebra
 
 function main_QS_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,K::Float64,mu_Cheats::Float64,rep_Num::Int64)
 
     # set path
-    dirPath = "."
+    dirPath = "./Auto"
 
     include("$dirPath/fortune_wheel.jl")
     include("$dirPath/mut_parameter.jl")
@@ -23,7 +24,7 @@ function main_QS_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,K::Fl
     include("$dirPath/cal_Signal_Concentration.jl")
 
     # reseed random generator Base.Random.GLOBAL_RNG.seed
-    srand(rand(RandomDevice(), UInt32, 1000))
+    Random.seed!(rand(RandomDevice(), UInt32, 1000))
 
     ################################################################################
     # set parameters
@@ -45,19 +46,19 @@ function main_QS_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,K::Fl
     mu_R = 0.01
 
     # maximum cellular density (cells per microliter)
-    max_CellDen = 10.^5
+    max_CellDen = 10.0^5
     # minimum cellular density
-    min_CellDen = 10.^1.5
+    min_CellDen = 10.0^1.5
     # median cellular density
     median_CellDen = median([min_CellDen,max_CellDen])
     # baseline volume
-    base_Volume = 10.
+    base_Volume = 10.0
 
     # signal decay rate
-    decay_Rate = 10.^-4.
+    decay_Rate = 10.0^-4.
 
     # initial testing environments
-    env_CellDen = collect(linspace(min_CellDen,max_CellDen,grid_Size))
+    env_CellDen = collect(range(min_CellDen,stop=max_CellDen,length=grid_Size))
 
     # maximum cellular production rate
     max_ProRate = 2e-08
