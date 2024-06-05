@@ -14,27 +14,25 @@ function eval_genotype(fit_Pop::Vector{Float64},coopPayoff_Pop::Vector{Float64},
 
 
         # calculate local signal density for mix_Num genotypes
-        sig_Concentration = sum(cal_Signal_Concentration(repeat(pro_Rate[index_Geno]',outer=[grid_Size,1]),pool_CellDen,decay_Rate,repeat(auto_R[index_Geno]',outer=[grid_Size,1]),K),2) ./mix_Num
-
+        sig_Concentration = cal_Signal_Concentration(repeat(pro_Rate[index_Geno]',outer=[grid_Size,1]),pool_CellDen,decay_Rate,repeat(auto_R[index_Geno]',outer=[grid_Size,1]),K)./mix_Num
         # individual who turns on cooperation at certain environment
         coop_ON = repeat(sig_Concentration,outer=[1,mix_Num]).>repeat((sig_Th[index_Geno])',outer=[grid_Size,1])
 
         # benefit for cooperation
-        coopPayoff_Pop[index_Geno] = repeat(coop_Benefit.*sum(sum(coop_ON,2)./mix_Num.*env_CellDen.*base_Volume.>
-                                     fill(median_CellDen,grid_Size,1).*base_Volume,1),outer=[mix_Num,1])
-
+        coopPayoff_Pop[index_Geno] .= coop_Benefit.*sum(sum(coop_ON)./mix_Num.*env_CellDen.*base_Volume.> fill(median_CellDen,grid_Size,1).*base_Volume)
+        
         # efficiency for cooperation
-        coopEff_Pop[index_Geno] = sum(coop_ON.==repeat(env_CellDen.>median_CellDen,outer=[1,mix_Num]),1)/Float64(grid_Size)
+        coopEff_Pop[index_Geno] .= sum(coop_ON.==repeat(env_CellDen.>median_CellDen,outer=[1,mix_Num]))/Float64(grid_Size)
 
         # cost for cooperation
-        coopCost_Pop[index_Geno] = coop_Cost.*sum(coop_ON,1)'
+        coopCost_Pop[index_Geno] .= coop_Cost.*sum(coop_ON)'
 
         # cost for signalling
         auto_pro_Rate[index_Geno] = pro_Rate[index_Geno].*(mean(sig_Concentration)./(K+mean(sig_Concentration)).*auto_R[index_Geno])
         sigCost_Pop[index_Geno] = sig_Cost.*(pro_Rate[index_Geno]+auto_pro_Rate[index_Geno])
 
         # calculate genotype fitness
-        fit_Pop[index_Geno] = baseline+coopPayoff_Pop[index_Geno]-coopCost_Pop[index_Geno]-sigCost_Pop[index_Geno]
+        fit_Pop[index_Geno] .= baseline+coopPayoff_Pop[index_Geno][1]-coopCost_Pop[index_Geno][1]-sigCost_Pop[index_Geno][1]
 
         # update counter
         counter += mix_Num

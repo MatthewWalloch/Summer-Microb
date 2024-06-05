@@ -8,11 +8,11 @@
 # mu_Cheats: parameter used in the zero-truncated Poisson distribution for
 #            generating number of cheaters 
 # rep_Num: index number of replications
-
+using Random
 function main_QS_No_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,mu_Cheats::Float64,rep_Num::Int64)
 
     # set path
-    dirPath = "."
+    dirPath = "./NoAuto/"
 
     include("$dirPath/fortune_wheel.jl")
     include("$dirPath/mut_parameter.jl")

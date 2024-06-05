@@ -14,7 +14,7 @@ using Random, Statistics, LinearAlgebra
 function main_QS_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,K::Float64,mu_Cheats::Float64,rep_Num::Int64)
 
     # set path
-    dirPath = "./Auto"
+    dirPath = "./julia/Auto"
 
     include("$dirPath/fortune_wheel.jl")
     include("$dirPath/mut_parameter.jl")
@@ -59,7 +59,7 @@ function main_QS_Auto(coop_Cost::Float64,sig_Cost::Float64,lambda::Float64,K::Fl
 
     # initial testing environments
     env_CellDen = collect(range(min_CellDen,stop=max_CellDen,length=grid_Size))
-
+    print(env_CellDen)
     # maximum cellular production rate
     max_ProRate = 2e-08
     # minimum cellular production rate
