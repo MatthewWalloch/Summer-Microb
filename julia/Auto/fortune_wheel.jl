@@ -7,6 +7,7 @@ function fortune_wheel(weights::Vector{Float64})
   while index<length(accumulation)
     index+=1
     if accumulation[index] > p
+      print(index)
       return index
     end
   end

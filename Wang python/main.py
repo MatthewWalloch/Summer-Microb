@@ -1,12 +1,29 @@
-
 import numpy as np
+import time
+from helpers import *
+import matplotlib.pyplot as plt
 
-if __name__ == "__main__":
+def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
+    ################################################################################
+    # QS with autoregulation
+    ################################################################################
+    # coop_Cost: constant for cost of cooperation, Float
+    # sig_Cost: constant for cost of signaling, Float
+    # lambda: parameter used in the zero-truncated Poisson distribution for
+    #         generating number of mixing genotypes, Float
+    # K: half concentration value, Float
+    # mu_Cheats: parameter used in the zero-truncated Poisson distribution for
+    #            generating number of cheaters, FLoat
+    # rep_Num: index number of replications, Int
+
+
+
+
     ################################################################################
     # set parameters
     ################################################################################
     # maxeimum generation
-    max_G = 50
+    max_G = 5000
     # population size
     size_Pop = 5000
     # environments
@@ -33,7 +50,7 @@ if __name__ == "__main__":
     decay_Rate = 10.0 ** -4.
 
     # initial testing environments
-    env_CellDen = list(np.linspace(min_CellDen, max_CellDen,num=grid_Size))
+    env_CellDen = np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size)))
     # maximum cellular production rate
     max_ProRate = 2e-08
     # minimum cellular production rate
@@ -69,13 +86,13 @@ if __name__ == "__main__":
     # initialization
     ################################################################################
     # initialize production rate
-    pro_Rate = np.full((size_Pop), init_pro_Rate)
+    pro_Rate = np.full((size_Pop,), init_pro_Rate)
     # initialize signal threshold
-    sig_Th = np.full((size_Pop), init_sig_Th)
+    sig_Th = np.full((size_Pop,), init_sig_Th)
     # initialize ratio of autoinduction production
-    auto_R = np.full((size_Pop), init_R)
+    auto_R = np.full((size_Pop,), init_R)
     # initialize genotype fitness
-    fit_Pop = np.zeros((size_Pop))
+    fit_Pop = np.zeros((size_Pop,))
     # initialize cooperation payoff
     coopPayoff_Pop = np.zeros(size_Pop)
     # initialize cost for signaling
@@ -119,49 +136,55 @@ if __name__ == "__main__":
     # Evolution
     ################################################################################
     # initial evaluation
-    eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lambda,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+
+    coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
     for g in range(1,max_G):
+        t = time.time_ns()
         # roulette-wheel selection
-        for n in range(0,size_Pop):
-            index_Select[n] = fortune_wheel(fit_Pop)
-
+        # for n in range(0,size_Pop):
+        #     index_Select[n] = int(fortune_wheel(fit_Pop))
+        fit_pop_probability = fit_Pop / sum(fit_Pop)
+        index_Select = np.random.choice(size_Pop, size_Pop, p=fit_pop_probability)
+        
         # update
+        #0.01... sec
         for n in range(len(index_Select)):
-            pro_Rate[n] = pro_Rate[index_Select[n]]
-            sig_Th[n] = sig_Th[index_Select[n]]
-            auto_R[n] = auto_R[index_Select[n]]
-            fit_Pop[n] = fit_Pop[index_Select[n]]
-            coopPayoff_Pop[n] = coopPayoff_Pop[index_Select[n]]
-            coopCost_Pop[n] = coopCost_Pop[index_Select[n]]
-            coopEff_Pop[n] = coopEff_Pop[index_Select[n]]
-            sigCost_Pop[n] = sigCost_Pop[index_Select[n]]
-            auto_pro_Rate[n] = auto_pro_Rate[index_Select[n]]
-            index_Cheats[n] = index_Cheats[index_Select[n]]
-
-        # generate cheats
-        if numCheats_Evo[g] < size_Pop:
-            num_Cheats = np.random.poisson(lam=mu_Cheats)
-            if num_Cheats!=0:
-                temp_Index = np.random.choice(size_Pop,size=num_Cheats, replace=False)
-                for n in temp_Index:
-                    index_Cheats[n] = 1
-                    pro_Rate[n] = cheats_proRate
-                    sig_Th[n] = cheats_sigTh
-
-
+            pro_Rate[n] = pro_Rate[int(index_Select[n])]
+            sig_Th[n] = sig_Th[int(index_Select[n])]
+            auto_R[n] = auto_R[int(index_Select[n])]
+            fit_Pop[n] = fit_Pop[int(index_Select[n])]
+            coopPayoff_Pop[n] = coopPayoff_Pop[int(index_Select[n])]
+            coopCost_Pop[n] = coopCost_Pop[int(index_Select[n])]
+            coopEff_Pop[n] = coopEff_Pop[int(index_Select[n])]
+            sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
+            auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
+            index_Cheats[n] = index_Cheats[int(index_Select[n])]
+        
+        # # generate cheats -- 0 sec
+        # if numCheats_Evo[g] < size_Pop:
+        #     num_Cheats = np.random.poisson(lam=mu_Cheats)
+        #     if num_Cheats!=0:
+        #         temp_Index = np.random.choice(size_Pop,size=num_Cheats, replace=False)
+        #         for n in temp_Index:
+        #             index_Cheats[n] = 1
+        #             pro_Rate[n] = cheats_proRate
+        #             sig_Th[n] = cheats_sigTh
+        
+        
+        # while section <<.005
         # mutate production rate
-        mut_parameter(pro_Rate,mu_Production,mu_SD_ProRate,min_ProRate,max_ProRate,index_Cheats,size_Pop)
+        pro_Rate = mut_parameter(pro_Rate,mu_Production,mu_SD_ProRate,min_ProRate,max_ProRate,index_Cheats,size_Pop)
 
         # mutate signal threshold
-        mut_parameter(sig_Th,mu_Th_Signal,mu_SD_sigTh,min_sigTh,max_sigTh,index_Cheats,size_Pop)
+        sig_Th = mut_parameter(sig_Th,mu_Th_Signal,mu_SD_sigTh,min_sigTh,max_sigTh,index_Cheats,size_Pop)
 
         # mutate ratio of autoinduction production
-        mut_parameter(auto_R,mu_R,mu_SD_R,min_R,max_R,index_Cheats,size_Pop)
+        auto_R = mut_parameter(auto_R,mu_R,mu_SD_R,min_R,max_R,index_Cheats,size_Pop)
 
         # record cheats
         numCheats_Evo[g] = np.sum(index_Cheats)
-
-        # save results
+        
+        # save results  0 sec ish
         fit_Evo[g] = np.mean(fit_Pop)
         pro_Rate_Evo[g] = np.mean(pro_Rate)
         sig_Th_Evo[g] = np.mean(sig_Th)
@@ -171,7 +194,7 @@ if __name__ == "__main__":
         coopCost_Evo[g] = np.mean(coopCost_Pop)
         auto_pro_Rate_Evo[g] = np.mean(auto_pro_Rate)
         coopEff_Evo[g] = np.mean(coopEff_Pop)
-
+        
         if numCheats_Evo[g] < size_Pop:
 
             index_nonCheats = np.ones(size_Pop)-index_Cheats
@@ -194,12 +217,19 @@ if __name__ == "__main__":
             coopCost_nonCheats_Evo[g] = coopCost_Evo[g]
             auto_pro_Rate_nonCheats_Evo[g] = auto_pro_Rate_Evo[g]
             coopEff_nonCheats_Evo[g] = coopEff_Evo[g]
-
+        
         # genotype evaluation
-        eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lambda,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
-
+        
+        coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+       
         for i in range(len(fit_Pop)):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0
+        
+    return pro_Rate_Evo, sig_Th_Evo
 
 
+pro_Rate_Evo, sig_Th_Evo = main_QS_Auto(0.5, 10.0 ** 9, 2, 50.0, 10.0 ** -4, 50)
+plt.plot(range(5000), pro_Rate_Evo)
+# plt.plot(range(5000), sig_Th_Evo)
+plt.show()
