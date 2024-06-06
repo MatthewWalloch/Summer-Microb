@@ -3,7 +3,7 @@ import time
 from helpers import *
 import matplotlib.pyplot as plt
 
-def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
+def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
     ################################################################################
     # QS with autoregulation
     ################################################################################
@@ -23,7 +23,7 @@ def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
     # set parameters
     ################################################################################
     # maxeimum generation
-    max_G = 5000
+    max_G = 1000
     # population size
     size_Pop = 5000
     # environments
@@ -136,8 +136,11 @@ def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
     # Evolution
     ################################################################################
     # initial evaluation
-
-    coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+    if Auto:   
+        coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+    else:
+        coopPayoff_Pop, coopEff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+    
     for g in range(1,max_G):
         t = time.time_ns()
         # roulette-wheel selection
@@ -151,14 +154,17 @@ def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
         for n in range(len(index_Select)):
             pro_Rate[n] = pro_Rate[int(index_Select[n])]
             sig_Th[n] = sig_Th[int(index_Select[n])]
-            auto_R[n] = auto_R[int(index_Select[n])]
             fit_Pop[n] = fit_Pop[int(index_Select[n])]
             coopPayoff_Pop[n] = coopPayoff_Pop[int(index_Select[n])]
             coopCost_Pop[n] = coopCost_Pop[int(index_Select[n])]
             coopEff_Pop[n] = coopEff_Pop[int(index_Select[n])]
             sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
-            auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
             index_Cheats[n] = index_Cheats[int(index_Select[n])]
+            if Auto: 
+                auto_R[n] = auto_R[int(index_Select[n])]
+                auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
+            else:
+                pass
         
         # # generate cheats -- 0 sec
         # if numCheats_Evo[g] < size_Pop:
@@ -179,8 +185,10 @@ def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
         sig_Th = mut_parameter(sig_Th,mu_Th_Signal,mu_SD_sigTh,min_sigTh,max_sigTh,index_Cheats,size_Pop)
 
         # mutate ratio of autoinduction production
-        auto_R = mut_parameter(auto_R,mu_R,mu_SD_R,min_R,max_R,index_Cheats,size_Pop)
-
+        if Auto:
+            auto_R = mut_parameter(auto_R,mu_R,mu_SD_R,min_R,max_R,index_Cheats,size_Pop)
+        else: 
+            pass
         # record cheats
         numCheats_Evo[g] = np.sum(index_Cheats)
         
@@ -220,8 +228,10 @@ def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
         
         # genotype evaluation
         
-        coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
-       
+        if Auto:   
+            coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+        else:
+            coopPayoff_Pop, coopEff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         for i in range(len(fit_Pop)):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0
@@ -229,7 +239,9 @@ def main_QS_Auto(coop_Cost, sig_Cost ,lam , K, mu_Cheats, rep_Num):
     return pro_Rate_Evo, sig_Th_Evo
 
 
-pro_Rate_Evo, sig_Th_Evo = main_QS_Auto(0.5, 10.0 ** 9, 2, 50.0, 10.0 ** -4, 50)
-plt.plot(range(5000), pro_Rate_Evo)
-# plt.plot(range(5000), sig_Th_Evo)
+
+
+pro_Rate_Evo, sig_Th_Evo = main_QS(0.5, 10.0 ** 9, 2, 50.0, 10.0 ** -4)
+plt.plot(range(1000), pro_Rate_Evo)
+plt.plot(range(1000), sig_Th_Evo)
 plt.show()

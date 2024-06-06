@@ -57,7 +57,7 @@ def fortune_wheel(weights):
 
 
 
-def eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,
+def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,
         pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
         grid_Size,base_Volume,decay_Rate,median_CellDen,K):
     counter = 0
@@ -96,3 +96,40 @@ def eval_genotype(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,au
         counter += mix_Num
 
         return coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop
+
+
+def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,
+    pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen):
+    counter = 0
+    while counter < size_Pop:
+        mix_Num = sample_ztp(lam)
+
+        index_Geno = np.random.choice(size_Pop, mix_Num)
+        pool_CellDen = np.full((mix_Num,), env_CellDen[mix_Num])
+        sig_Concentration = [pro_Rate[index_Geno[i]]/decay_Rate * pool_CellDen[i] / mix_Num  for i in range(mix_Num)]
+
+        coop_ON = np.array([int(sig_Concentration[index] > sig_Th[index_Geno[index]]) 
+                            for index in range(len(sig_Concentration))])
+        
+        for i in index_Geno:
+            test_coop_benifit = np.sum(coop_ON) / mix_Num * base_Volume * env_CellDen
+            threshold = median_CellDen * base_Volume
+            coopPayoff_Pop[i] = coop_Benefit * np.sum([int(indiv > threshold)  for indiv in test_coop_benifit])
+
+            # might throw index error as cell enviorment is low
+            high_desncity = [int(env_CellDen[i] > median_CellDen) for i in range(mix_Num)]
+            coopEff_Pop[i] = np.sum([int(coop_ON[i] == high_desncity[i]) for i in range(len(coop_ON))]) / grid_Size
+
+            coopCost_Pop[i] = coop_Cost * sum(coop_ON)
+
+            mean_sigCon = np.mean(sig_Concentration)
+            
+            sigCost_Pop[i] = sig_Cost * pro_Rate[i]
+
+            # the indexing here doesnt really make sense but ok
+            fit_Pop[i] = baseline + coopPayoff_Pop[index_Geno[0]]- coopCost_Pop[index_Geno[0]] - sigCost_Pop[index_Geno[0]]
+
+        counter += mix_Num
+
+        return coopPayoff_Pop, coopEff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop
