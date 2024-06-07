@@ -2,8 +2,9 @@ import numpy as np
 import time
 from helpers import *
 import matplotlib.pyplot as plt
+import json
 
-def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
+def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     ################################################################################
     # QS with autoregulation
     ################################################################################
@@ -22,12 +23,10 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
     ################################################################################
     # set parameters
     ################################################################################
-    # maxeimum generation
-    max_G = 1000
     # population size
-    size_Pop = 5000
+    size_Pop = 1000
     # environments
-    grid_Size = 100
+    grid_Size = 20
     # baseline fitness
     baseline = 100.0
     # payoff for gene turned 'ON' & cooperation
@@ -102,7 +101,6 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
     # autoinduction production rate
     auto_pro_Rate = np.zeros(size_Pop)
     # efficiency for cooperation
-    coopEff_Pop = np.zeros(size_Pop)
     # cheats index
     index_Cheats = np.zeros(size_Pop)
     # selection index
@@ -136,35 +134,54 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
     # Evolution
     ################################################################################
     # initial evaluation
-    if Auto:   
-        coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
-    else:
-        coopPayoff_Pop, coopEff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
     
+    if Auto:   
+        coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+    else:
+        coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
     for g in range(1,max_G):
         t = time.time_ns()
         # roulette-wheel selection
         # for n in range(0,size_Pop):
         #     index_Select[n] = int(fortune_wheel(fit_Pop))
         fit_pop_probability = fit_Pop / sum(fit_Pop)
-        index_Select = np.random.choice(size_Pop, size_Pop, p=fit_pop_probability)
+        index_Select = np.random.choice(size_Pop, size=size_Pop, p=fit_pop_probability)
         
         # update
-        #0.01... sec
+        #0.01... sec\
+        
+        temp_pro_Rate = np.zeros(size_Pop)
+        temp_sig_Th = np.zeros(size_Pop)
+        temp_fit_Pop = np.zeros(size_Pop)
+        temp_coopPayoff_Pop = np.zeros(size_Pop)
+        temp_coopCost_Pop = np.zeros(size_Pop)
+        temp_sigCost_Pop = np.zeros(size_Pop)
+        temp_index_Cheats = np.zeros(size_Pop)
+        if Auto: 
+            temp_auto_R[n] = np.zeros(size_Pop)
+            temp_auto_pro_Rate[n] = np.zeros(size_Pop)
         for n in range(len(index_Select)):
-            pro_Rate[n] = pro_Rate[int(index_Select[n])]
-            sig_Th[n] = sig_Th[int(index_Select[n])]
-            fit_Pop[n] = fit_Pop[int(index_Select[n])]
-            coopPayoff_Pop[n] = coopPayoff_Pop[int(index_Select[n])]
-            coopCost_Pop[n] = coopCost_Pop[int(index_Select[n])]
-            coopEff_Pop[n] = coopEff_Pop[int(index_Select[n])]
-            sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
-            index_Cheats[n] = index_Cheats[int(index_Select[n])]
+            temp_pro_Rate[n] = pro_Rate[int(index_Select[n])]
+            temp_sig_Th[n] = sig_Th[int(index_Select[n])]
+            temp_fit_Pop[n] = fit_Pop[int(index_Select[n])]
+            temp_coopPayoff_Pop[n] = coopPayoff_Pop[int(index_Select[n])]
+            temp_coopCost_Pop[n] = coopCost_Pop[int(index_Select[n])]
+
+            temp_sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
+            temp_index_Cheats[n] = index_Cheats[int(index_Select[n])]
             if Auto: 
-                auto_R[n] = auto_R[int(index_Select[n])]
-                auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
+                temp_auto_R[n] = auto_R[int(index_Select[n])]
+                temp_auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
             else:
                 pass
+        print(temp_fit_Pop)
+        pro_Rate=temp_pro_Rate
+        sig_Th=temp_sig_Th
+        fit_Pop=temp_fit_Pop
+        coopPayoff_Pop=temp_coopPayoff_Pop 
+        coopCost_Pop=temp_coopCost_Pop
+        igCost_Pop=temp_sigCost_Pop
+        index_Cheats=temp_index_Cheats
         
         # # generate cheats -- 0 sec
         # if numCheats_Evo[g] < size_Pop:
@@ -201,7 +218,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
         sigCost_Evo[g] = np.mean(sigCost_Pop)
         coopCost_Evo[g] = np.mean(coopCost_Pop)
         auto_pro_Rate_Evo[g] = np.mean(auto_pro_Rate)
-        coopEff_Evo[g] = np.mean(coopEff_Pop)
+
         
         if numCheats_Evo[g] < size_Pop:
 
@@ -214,7 +231,6 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
             sigCost_nonCheats_Evo[g] = np.dot(sigCost_Pop,index_nonCheats) / size_Pop
             coopCost_nonCheats_Evo[g] = np.dot(coopCost_Pop,index_nonCheats) / size_Pop
             auto_pro_Rate_nonCheats_Evo[g] = np.dot(auto_pro_Rate,index_nonCheats) / size_Pop
-            coopEff_nonCheats_Evo[g] = np.dot(coopEff_Pop,index_nonCheats) / size_Pop
         else:
             fit_nonCheats_Evo[g] = fit_Evo[g]
             pro_Rate_nonCheats_Evo[g] = pro_Rate_Evo[g]
@@ -229,19 +245,35 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False):
         # genotype evaluation
         
         if Auto:   
-            coopPayoff_Pop, coopEff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+            coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
         else:
-            coopPayoff_Pop, coopEff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,coopEff_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         for i in range(len(fit_Pop)):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0
-        
-    return pro_Rate_Evo, sig_Th_Evo
+        print(g)
+    return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
 
 
 
-pro_Rate_Evo, sig_Th_Evo = main_QS(0.5, 10.0 ** 9, 2, 50.0, 10.0 ** -4)
-plt.plot(range(1000), pro_Rate_Evo)
-plt.plot(range(1000), sig_Th_Evo)
+t = time.time_ns()
+Auto=False
+coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 2.0, 50.0, 10.0 ** -4,10
+fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
+print((time.time_ns()-t)* 10 **-9)
+data = {"fit_Evo": fit_Evo.tolist(),
+        "pro_Rate_Evo": pro_Rate_Evo.tolist(),
+        "sig_Th_Evo": sig_Th_Evo.tolist(),
+        "auto_R_Evo": auto_R_Evo.tolist(),
+        "coopPayoff_Evo": coopPayoff_Evo.tolist(),
+        "sigCost_Evo": sigCost_Evo.tolist(),
+        "coopCost_Evo": coopCost_Evo.tolist(),
+        "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
+t = time.asctime().replace(":", "-" )
+with open(f"Wang python/json/{coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G} {t}.json", "w") as f:
+    json.dump(data, f,  ensure_ascii=False, indent=4)
+plt.plot(range(max_G), pro_Rate_Evo, color="blue")
+plt.plot(range(max_G), sig_Th_Evo, color="red")
+
 plt.show()
