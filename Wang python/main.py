@@ -33,9 +33,14 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     coop_Benefit = 1.5
 
     # mutation rate
+
     mu_Production = 0.01
     mu_Th_Signal = 0.01
     mu_R = 0.01
+    # print("mutation rates increased for testing")
+    # mu_Production = 0.1
+    # mu_Th_Signal = 0.1
+    # mu_R = 0.1
 
     # maximum cellular density (cells per microliter)
     max_CellDen = 10.0 ** 5
@@ -53,7 +58,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # maximum cellular production rate
     max_ProRate = 2e-08
     # minimum cellular production rate
-    min_ProRate = 0.
+    min_ProRate = 0
     # initial cellular production rate
     init_pro_Rate = 0.5e-08 
     # SD for mutation of cellular production rate
@@ -134,11 +139,23 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # Evolution
     ################################################################################
     # initial evaluation
-    
     if Auto:   
         coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
     else:
         coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+    g = 0
+    numCheats_Evo[g] = np.sum(index_Cheats)
+        
+        # save results  0 sec ish
+    fit_Evo[g] = np.mean(fit_Pop)
+    pro_Rate_Evo[g] = np.mean(pro_Rate)
+    sig_Th_Evo[g] = np.mean(sig_Th)
+    auto_R_Evo[g] = np.mean(auto_R)
+    coopPayoff_Evo[g] = np.mean(coopPayoff_Pop)
+    sigCost_Evo[g] = np.mean(sigCost_Pop)
+    coopCost_Evo[g] = np.mean(coopCost_Pop)
+    auto_pro_Rate_Evo[g] = np.mean(auto_pro_Rate)
+    
     for g in range(1,max_G):
         t = time.time_ns()
         # roulette-wheel selection
@@ -146,7 +163,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         #     index_Select[n] = int(fortune_wheel(fit_Pop))
         fit_pop_probability = fit_Pop / sum(fit_Pop)
         index_Select = np.random.choice(size_Pop, size=size_Pop, p=fit_pop_probability)
-        
+        # print(fit_pop_probability)
+        # print(index_Select)
         # update
         #0.01... sec\
         
@@ -174,7 +192,6 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
                 temp_auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
             else:
                 pass
-        print(temp_fit_Pop)
         pro_Rate=temp_pro_Rate
         sig_Th=temp_sig_Th
         fit_Pop=temp_fit_Pop
@@ -196,6 +213,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         
         # while section <<.005
         # mutate production rate
+        
         pro_Rate = mut_parameter(pro_Rate,mu_Production,mu_SD_ProRate,min_ProRate,max_ProRate,index_Cheats,size_Pop)
 
         # mutate signal threshold
@@ -251,7 +269,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         for i in range(len(fit_Pop)):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0
-        print(g)
+        if g % 100 == 0:
+            print(g)
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
 
@@ -259,7 +278,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
 t = time.time_ns()
 Auto=False
-coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 2.0, 50.0, 10.0 ** -4,10
+coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 1, 50.0, 10.0 ** -4, 1000
 fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
 print((time.time_ns()-t)* 10 **-9)
 data = {"fit_Evo": fit_Evo.tolist(),
@@ -271,9 +290,7 @@ data = {"fit_Evo": fit_Evo.tolist(),
         "coopCost_Evo": coopCost_Evo.tolist(),
         "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
 t = time.asctime().replace(":", "-" )
-with open(f"Wang python/json/{coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G} {t}.json", "w") as f:
+with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
     json.dump(data, f,  ensure_ascii=False, indent=4)
-plt.plot(range(max_G), pro_Rate_Evo, color="blue")
-plt.plot(range(max_G), sig_Th_Evo, color="red")
 
 plt.show()
