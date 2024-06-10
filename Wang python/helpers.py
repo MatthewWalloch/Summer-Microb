@@ -101,6 +101,30 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
         return coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop
 
 
+def parallel_No_auto_faster(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline):
+    new_coopPayoff_Pop = []
+    new_coopCost_Pop = []
+    new_sigCost_Pop = []
+    new_fit_Pop = []
+    index_Geno = np.random.choice(size_Pop, mix_Num)
+    sig_concentration = pro_Rate * decay_Rate / mix_Num
+    for geno in index_Geno:
+        cost_sum = 0
+        benifit_sum = 0
+
+            
+        for density in env_CellDen:
+            sig_Concentration = sum([pro_Rate[index]/decay_Rate * density / mix_Num for index in index_Geno])
+            cost_sum += int(sig_Concentration > sig_Th[geno])
+            benifit_sum += int(np.sum([density * int(sig_Concentration > sig_Th[index]) / mix_Num  for index in index_Geno]) > median_CellDen)
+    
+        new_coopPayoff_Pop.append(coop_Benefit * benifit_sum)
+        new_coopCost_Pop.append(coop_Cost * cost_sum)
+        new_sigCost_Pop.append(sig_Cost * pro_Rate[geno])
+        new_fit_Pop.append(baseline + new_coopPayoff_Pop[-1] - new_coopCost_Pop[-1] - new_sigCost_Pop[-1])
+    return new_coopPayoff_Pop, new_coopCost_Pop, new_sigCost_Pop, new_fit_Pop
+
+
 def parallel_No_auto(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline):
     new_coopPayoff_Pop = []
     new_coopCost_Pop = []
@@ -114,17 +138,15 @@ def parallel_No_auto(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_T
             
         for density in env_CellDen:
             sig_Concentration = sum([pro_Rate[index]/decay_Rate * density / mix_Num for index in index_Geno])
-            cost_sum += 5*int(sig_Concentration > sig_Th[geno])
-            benifit_sum += 5 * int(np.sum([density * int(sig_Concentration > sig_Th[index]) / mix_Num  for index in index_Geno]) > median_CellDen)
+            cost_sum += int(sig_Concentration > sig_Th[geno])
+            benifit_sum += int(np.sum([density * int(sig_Concentration > sig_Th[index]) / mix_Num  for index in index_Geno]) > median_CellDen)
     
         new_coopPayoff_Pop.append(coop_Benefit * benifit_sum)
         new_coopCost_Pop.append(coop_Cost * cost_sum)
         new_sigCost_Pop.append(sig_Cost * pro_Rate[geno])
         new_fit_Pop.append(baseline + new_coopPayoff_Pop[-1] - new_coopCost_Pop[-1] - new_sigCost_Pop[-1])
     return new_coopPayoff_Pop, new_coopCost_Pop, new_sigCost_Pop, new_fit_Pop
-        
-
-
+     
 
 def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,

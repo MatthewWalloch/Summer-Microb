@@ -24,9 +24,9 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # set parameters
     ################################################################################
     # population size
-    size_Pop = 1000
+    size_Pop = 500
     # environments
-    grid_Size = 20
+    grid_Size = 100
     # baseline fitness
     baseline = 100.0
     # payoff for gene turned 'ON' & cooperation
@@ -34,13 +34,13 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
     # mutation rate
 
-    mu_Production = 0.01
-    mu_Th_Signal = 0.01
-    mu_R = 0.01
-    # print("mutation rates increased for testing")
-    # mu_Production = 0.1
-    # mu_Th_Signal = 0.1
-    # mu_R = 0.1
+    # mu_Production = 0.01
+    # mu_Th_Signal = 0.01
+    # mu_R = 0.01
+    print("mutation rates increased for testing")
+    mu_Production = 0.1
+    mu_Th_Signal = 0.1
+    mu_R = 0.1
 
     # maximum cellular density (cells per microliter)
     max_CellDen = 10.0 ** 5
@@ -175,9 +175,6 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         temp_coopCost_Pop = np.zeros(size_Pop)
         temp_sigCost_Pop = np.zeros(size_Pop)
         temp_index_Cheats = np.zeros(size_Pop)
-        if Auto: 
-            temp_auto_R[n] = np.zeros(size_Pop)
-            temp_auto_pro_Rate[n] = np.zeros(size_Pop)
         for n in range(len(index_Select)):
             temp_pro_Rate[n] = pro_Rate[int(index_Select[n])]
             temp_sig_Th[n] = sig_Th[int(index_Select[n])]
@@ -278,7 +275,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
 t = time.time_ns()
 Auto=False
-coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 1, 50.0, 10.0 ** -4, 1000
+coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 9, 0, 50.0, 10.0 ** -4, 5000
 fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
 print((time.time_ns()-t)* 10 **-9)
 data = {"fit_Evo": fit_Evo.tolist(),
@@ -292,5 +289,4 @@ data = {"fit_Evo": fit_Evo.tolist(),
 t = time.asctime().replace(":", "-" )
 with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
     json.dump(data, f,  ensure_ascii=False, indent=4)
-
-plt.show()
+# look at figure 1 a and b and see if the eveo algorythm produces those cutoffs.
