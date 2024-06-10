@@ -24,9 +24,9 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # set parameters
     ################################################################################
     # population size
-    size_Pop = 1000
+    size_Pop = 5000
     # environments
-    grid_Size = 20
+    grid_Size = 100
     # baseline fitness
     baseline = 100.0
     # payoff for gene turned 'ON' & cooperation
@@ -139,6 +139,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # Evolution
     ################################################################################
     # initial evaluation
+    t = time.time_ns()
     if Auto:   
         coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
     else:
@@ -270,7 +271,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0
         if g % 100 == 0:
-            print(g)
+            print(f"generation {g}: {(time.time_ns()-t)* 10 **-9}")
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
 
@@ -278,7 +279,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
 t = time.time_ns()
 Auto=False
-coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 1, 50.0, 10.0 ** -4, 1000
+coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 0, 50.0, 10.0 ** -4, 1000
 fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
 print((time.time_ns()-t)* 10 **-9)
 data = {"fit_Evo": fit_Evo.tolist(),

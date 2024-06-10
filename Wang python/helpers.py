@@ -114,8 +114,8 @@ def parallel_No_auto(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_T
             
         for density in env_CellDen:
             sig_Concentration = sum([pro_Rate[index]/decay_Rate * density / mix_Num for index in index_Geno])
-            cost_sum += 5*int(sig_Concentration > sig_Th[geno])
-            benifit_sum += 5 * int(np.sum([density * int(sig_Concentration > sig_Th[index]) / mix_Num  for index in index_Geno]) > median_CellDen)
+            cost_sum += int(sig_Concentration > sig_Th[geno])
+            benifit_sum += int(np.sum([density * int(sig_Concentration > sig_Th[index]) / mix_Num  for index in index_Geno]) > median_CellDen)
     
         new_coopPayoff_Pop.append(coop_Benefit * benifit_sum)
         new_coopCost_Pop.append(coop_Cost * cost_sum)
@@ -139,7 +139,7 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     while np.sum(mixing_numbers) < size_Pop:
         mixing_numbers.append(sample_ztp(lam))
     
-    everything = joblib.Parallel(n_jobs=8)(joblib.delayed(parallel_No_auto)(
+    everything = joblib.Parallel(n_jobs=16)(joblib.delayed(parallel_No_auto)(
         size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline) for mix_Num in mixing_numbers)
 
     for item in everything:
