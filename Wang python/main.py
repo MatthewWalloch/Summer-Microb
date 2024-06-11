@@ -24,7 +24,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # set parameters
     ################################################################################
     # population size
-    size_Pop = 500
+    size_Pop = 1000
     # environments
     grid_Size = 100
     # baseline fitness
@@ -155,9 +155,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     sigCost_Evo[g] = np.mean(sigCost_Pop)
     coopCost_Evo[g] = np.mean(coopCost_Pop)
     auto_pro_Rate_Evo[g] = np.mean(auto_pro_Rate)
-    
+    t= time.time_ns()
     for g in range(1,max_G):
-        t = time.time_ns()
         # roulette-wheel selection
         # for n in range(0,size_Pop):
         #     index_Select[n] = int(fortune_wheel(fit_Pop))
@@ -268,6 +267,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
                 fit_Pop[i] = 0
         if g % 100 == 0:
             print(g)
+            print((time.time_ns()-t)* 10 **-9)
+            t = time.time_ns()
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
 
@@ -275,7 +276,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
 t = time.time_ns()
 Auto=False
-coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 9, 0, 50.0, 10.0 ** -4, 5000
+coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 1, 50.0, 10.0 ** -4, 500
 fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
 print((time.time_ns()-t)* 10 **-9)
 data = {"fit_Evo": fit_Evo.tolist(),

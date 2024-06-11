@@ -101,27 +101,23 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
         return coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop
 
 
-def parallel_No_auto_faster(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline):
+def parallel_No_auto_faster(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline, index_By_Den):
     new_coopPayoff_Pop = []
     new_coopCost_Pop = []
     new_sigCost_Pop = []
     new_fit_Pop = []
     index_Geno = np.random.choice(size_Pop, mix_Num)
-    sig_concentration = pro_Rate * decay_Rate / mix_Num
-    for geno in index_Geno:
-        cost_sum = 0
-        benifit_sum = 0
-
-            
-        for density in env_CellDen:
-            sig_Concentration = sum([pro_Rate[index]/decay_Rate * density / mix_Num for index in index_Geno])
-            cost_sum += int(sig_Concentration > sig_Th[geno])
-            benifit_sum += int(np.sum([density * int(sig_Concentration > sig_Th[index]) / mix_Num  for index in index_Geno]) > median_CellDen)
-    
-        new_coopPayoff_Pop.append(coop_Benefit * benifit_sum)
-        new_coopCost_Pop.append(coop_Cost * cost_sum)
-        new_sigCost_Pop.append(sig_Cost * pro_Rate[geno])
-        new_fit_Pop.append(baseline + new_coopPayoff_Pop[-1] - new_coopCost_Pop[-1] - new_sigCost_Pop[-1])
+    grid_Size = len(env_CellDen)
+    indexes = index_By_Den[index_Geno].transpose().dot(np.ones(mix_Num)) / mix_Num
+    thresholds = sig_Th[index_Geno]
+    coop_On = np.full((mix_Num, grid_Size), indexes).transpose() > thresholds
+    H_C_sum = coop_On.transpose().dot(np.ones(grid_Size))
+    H_B_sum = (coop_On.dot(np.ones(mix_Num)) * env_CellDen > np.full((grid_Size,), median_CellDen)).dot(np.ones(grid_Size))
+    for i in range(mix_Num):        
+        new_coopPayoff_Pop.append(coop_Benefit * H_B_sum)
+        new_coopCost_Pop.append(coop_Cost * H_C_sum[i])
+        new_sigCost_Pop.append(sig_Cost * pro_Rate[index_Geno[i]])
+        new_fit_Pop.append(baseline + coop_Benefit * H_B_sum -coop_Cost * H_C_sum[i] - sig_Cost * pro_Rate[index_Geno[i]])
     return new_coopPayoff_Pop, new_coopCost_Pop, new_sigCost_Pop, new_fit_Pop
 
 
@@ -157,12 +153,14 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     new_sigCost_Pop = []
     new_fit_Pop = []
     mixing_numbers = []
-    
+    contribute = pro_Rate / decay_Rate 
+    matrix = np.full((grid_Size,size_Pop), contribute)
+    index_By_Den = env_CellDen * matrix.transpose()
     while np.sum(mixing_numbers) < size_Pop:
         mixing_numbers.append(sample_ztp(lam))
     
-    everything = joblib.Parallel(n_jobs=8)(joblib.delayed(parallel_No_auto)(
-        size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline) for mix_Num in mixing_numbers)
+    everything = joblib.Parallel(n_jobs=8)(joblib.delayed(parallel_No_auto_faster)(
+        size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline, index_By_Den) for mix_Num in mixing_numbers)
 
     for item in everything:
         new_coopPayoff_Pop += item[0]
@@ -171,3 +169,4 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         new_fit_Pop += item[3]
 
     return np.array(new_coopPayoff_Pop[0:size_Pop]), np.array(new_coopCost_Pop[0:size_Pop]), np.array(new_sigCost_Pop[0:size_Pop]), np.array(new_fit_Pop[0:size_Pop])
+
