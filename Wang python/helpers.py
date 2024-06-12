@@ -106,18 +106,18 @@ def parallel_No_auto_faster(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen
     new_coopCost_Pop = []
     new_sigCost_Pop = []
     new_fit_Pop = []
-    index_Geno = np.random.choice(size_Pop, mix_Num)
-    grid_Size = len(env_CellDen)
-    indexes = index_By_Den[index_Geno].transpose().dot(np.ones(mix_Num)) / mix_Num
+    index_Geno = np.random.choice(size_Pop, mix_Num) # get the indexes
+    grid_Size = len(env_CellDen) 
+    indexes = index_By_Den[index_Geno].transpose().dot(np.ones(mix_Num)) / mix_Num # H_B_g_j sums from S4 used in S5
     thresholds = sig_Th[index_Geno]
-    coop_On = np.full((mix_Num, grid_Size), indexes).transpose() > thresholds
-    H_C_sum = coop_On.transpose().dot(np.ones(grid_Size))
-    H_B_sum = (coop_On.dot(np.ones(mix_Num)) * env_CellDen > np.full((grid_Size,), median_CellDen)).dot(np.ones(grid_Size))
+    coop_On = np.full((mix_Num, grid_Size), indexes).transpose() > thresholds # compares the sums to the thresholds to get the full S4
+    H_C_sum = coop_On.transpose().dot(np.ones(grid_Size)) # sum used in S3
+    H_B_sum = (coop_On.dot(np.ones(mix_Num)) * env_CellDen > np.full((grid_Size,), median_CellDen)).dot(np.ones(grid_Size)) # Sum from S5 and S3 in one
     for i in range(mix_Num):        
         new_coopPayoff_Pop.append(coop_Benefit * H_B_sum)
         new_coopCost_Pop.append(coop_Cost * H_C_sum[i])
         new_sigCost_Pop.append(sig_Cost * pro_Rate[index_Geno[i]])
-        new_fit_Pop.append(baseline + coop_Benefit * H_B_sum -coop_Cost * H_C_sum[i] - sig_Cost * pro_Rate[index_Geno[i]])
+        new_fit_Pop.append(baseline + coop_Benefit * H_B_sum - coop_Cost * H_C_sum[i] - sig_Cost * pro_Rate[index_Geno[i]])
     return new_coopPayoff_Pop, new_coopCost_Pop, new_sigCost_Pop, new_fit_Pop
 
 
@@ -169,4 +169,3 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         new_fit_Pop += item[3]
 
     return np.array(new_coopPayoff_Pop[0:size_Pop]), np.array(new_coopCost_Pop[0:size_Pop]), np.array(new_sigCost_Pop[0:size_Pop]), np.array(new_fit_Pop[0:size_Pop])
-

@@ -24,23 +24,23 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # set parameters
     ################################################################################
     # population size
-    size_Pop = 1000
+    size_Pop = 5000
     # environments
     grid_Size = 100
     # baseline fitness
-    baseline = 100.0
+    baseline = 100
     # payoff for gene turned 'ON' & cooperation
     coop_Benefit = 1.5
 
     # mutation rate
 
-    # mu_Production = 0.01
-    # mu_Th_Signal = 0.01
-    # mu_R = 0.01
-    print("mutation rates increased for testing")
-    mu_Production = 0.1
-    mu_Th_Signal = 0.1
-    mu_R = 0.1
+    mu_Production = 0.01
+    mu_Th_Signal = 0.01
+    mu_R = 0.01
+    # print("mutation rates increased for testing")
+    # mu_Production = 0.1
+    # mu_Th_Signal = 0.1
+    # mu_R = 0.1
 
     # maximum cellular density (cells per microliter)
     max_CellDen = 10.0 ** 5
@@ -157,16 +157,6 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     auto_pro_Rate_Evo[g] = np.mean(auto_pro_Rate)
     t= time.time_ns()
     for g in range(1,max_G):
-        # roulette-wheel selection
-        # for n in range(0,size_Pop):
-        #     index_Select[n] = int(fortune_wheel(fit_Pop))
-        fit_pop_probability = fit_Pop / sum(fit_Pop)
-        index_Select = np.random.choice(size_Pop, size=size_Pop, p=fit_pop_probability)
-        # print(fit_pop_probability)
-        # print(index_Select)
-        # update
-        #0.01... sec\
-        
         temp_pro_Rate = np.zeros(size_Pop)
         temp_sig_Th = np.zeros(size_Pop)
         temp_fit_Pop = np.zeros(size_Pop)
@@ -174,20 +164,48 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         temp_coopCost_Pop = np.zeros(size_Pop)
         temp_sigCost_Pop = np.zeros(size_Pop)
         temp_index_Cheats = np.zeros(size_Pop)
-        for n in range(len(index_Select)):
-            temp_pro_Rate[n] = pro_Rate[int(index_Select[n])]
-            temp_sig_Th[n] = sig_Th[int(index_Select[n])]
-            temp_fit_Pop[n] = fit_Pop[int(index_Select[n])]
-            temp_coopPayoff_Pop[n] = coopPayoff_Pop[int(index_Select[n])]
-            temp_coopCost_Pop[n] = coopCost_Pop[int(index_Select[n])]
 
-            temp_sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
-            temp_index_Cheats[n] = index_Cheats[int(index_Select[n])]
-            if Auto: 
-                temp_auto_R[n] = auto_R[int(index_Select[n])]
-                temp_auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
-            else:
-                pass
+        for i in range(len(fit_Pop)):
+            if fit_Pop[i] < 0:
+                fit_Pop[i] = 0
+        fit_pop_probability = fit_Pop
+        fit_pop_probability = fit_pop_probability / sum(fit_pop_probability)
+        index_Select = np.random.choice(size_Pop, size=size_Pop, p=fit_pop_probability)
+
+        everything = zip(pro_Rate, sig_Th, fit_Pop, coopPayoff_Pop, coopCost_Pop, sigCost_Pop, index_Cheats)
+        sort = sorted(everything, key= lambda pair: pair[2])
+        number_of_top = size_Pop // 10
+        for i in range(number_of_top):
+            for j in range(10):
+                n = i*10 + j
+                temp_pro_Rate[n] = sort[-i][0]
+                temp_sig_Th[n] = sort[-i][1]
+                temp_fit_Pop[n] = sort[-i][2]
+                temp_coopPayoff_Pop[n] = sort[-i][3]
+                temp_coopCost_Pop[n] = sort[-i][4]
+                temp_sigCost_Pop[n] = sort[-i][5]
+                temp_index_Cheats[n] = sort[-i][6]
+
+        # print(fit_pop_probability)
+        # print(index_Select)
+        # update
+        #0.01... sec\
+        
+        
+        # for n in range(len(index_Select)):
+        #     temp_pro_Rate[n] = pro_Rate[int(index_Select[n])]
+        #     temp_sig_Th[n] = sig_Th[int(index_Select[n])]
+        #     temp_fit_Pop[n] = fit_Pop[int(index_Select[n])]
+        #     temp_coopPayoff_Pop[n] = coopPayoff_Pop[int(index_Select[n])]
+        #     temp_coopCost_Pop[n] = coopCost_Pop[int(index_Select[n])]
+
+        #     temp_sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
+        #     temp_index_Cheats[n] = index_Cheats[int(index_Select[n])]
+        #     if Auto: 
+        #         temp_auto_R[n] = auto_R[int(index_Select[n])]
+        #         temp_auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
+        #     else:
+        #         pass
         pro_Rate=temp_pro_Rate
         sig_Th=temp_sig_Th
         fit_Pop=temp_fit_Pop
@@ -262,9 +280,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
         else:
             coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
-        for i in range(len(fit_Pop)):
-            if fit_Pop[i] < 0:
-                fit_Pop[i] = 0
+        
         if g % 100 == 0:
             print(g)
             print((time.time_ns()-t)* 10 **-9)
@@ -276,7 +292,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
 t = time.time_ns()
 Auto=False
-coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 1, 50.0, 10.0 ** -4, 500
+coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G = 0.5, 10.0 ** 10, 10, 50.0, 10.0 ** -4, 1000
 fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
 print((time.time_ns()-t)* 10 **-9)
 data = {"fit_Evo": fit_Evo.tolist(),
