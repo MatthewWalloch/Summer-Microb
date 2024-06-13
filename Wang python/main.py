@@ -313,5 +313,5 @@ def vary_signal(sig_Cost):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 
-joblib.Parallel(n_jobs=8)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
+joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
 # look at figure 1 a and b and see if the eveo algorythm produces those cutoffs.
