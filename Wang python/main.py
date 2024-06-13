@@ -3,6 +3,7 @@ import time
 from helpers import *
 import matplotlib.pyplot as plt
 import json
+import joblib
 
 def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     ################################################################################
@@ -281,21 +282,24 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         else:
             coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         
-        if g % 1000 == 0:
-            print(g)
-            print((time.time_ns()-t)* 10 **-9)
-            t = time.time_ns()
+        # if g % 1000 == 0:
+        #     print(g)
+        #     print((time.time_ns()-t)* 10 **-9)
+        #     t = time.time_ns()
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
 
 
 
-t = time.time_ns()
-Auto=False
-for sig_Cost in np.arange(5 * 10 ** 8, stop=100 * 10 ** 8, step= 5 * 10 ** 8):
+
+
+def vary_signal(sig_Cost):
+    Auto=False
+    # t = time.time_ns()
     coop_Cost ,lam , K, mu_Cheats, max_G = 0.5, 0, 50.0, 10.0 ** -4, 5000
     fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
-    print((time.time_ns()-t)* 10 **-9)
+    # print((time.time_ns()-t)* 10 **-9)
+    print(f'{sig_Cost // 10 ** 8} done') 
     data = {"fit_Evo": fit_Evo.tolist(),
             "pro_Rate_Evo": pro_Rate_Evo.tolist(),
             "sig_Th_Evo": sig_Th_Evo.tolist(),
@@ -307,4 +311,7 @@ for sig_Cost in np.arange(5 * 10 ** 8, stop=100 * 10 ** 8, step= 5 * 10 ** 8):
     t = time.asctime().replace(":", "-" )
     with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
+
+
+joblib.Parallel(n_jobs=8)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
 # look at figure 1 a and b and see if the eveo algorythm produces those cutoffs.
