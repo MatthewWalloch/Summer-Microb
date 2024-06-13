@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import json
 
-filename = "Wang python\json\Wed Jun 12 13-24-13 2024 0.5 10000000000.0 10 0.0001 False 1000.json"
+filename = "Wang python\json\Thu Jun 13 13-08-41 2024 0.5 500000000.0 0 0.0001 False 5000.json"
 with open(filename, "r") as f:
     data = json.load(f)
 fig, ax = plt.subplots(4,2)

@@ -169,3 +169,34 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         new_fit_Pop += item[3]
 
     return np.array(new_coopPayoff_Pop[0:size_Pop]), np.array(new_coopCost_Pop[0:size_Pop]), np.array(new_sigCost_Pop[0:size_Pop]), np.array(new_fit_Pop[0:size_Pop])
+
+def eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
+    pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen):
+
+    contribute = pro_Rate / decay_Rate 
+    contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
+    den_Matrix = np.full((grid_Size, grid_Size), env_CellDen)
+    threshold_matrix = np.full((grid_Size, size_Pop), sig_Th).transpose()
+    H_C_g_j = (env_CellDen * contribute_Matrix ) > threshold_matrix
+    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
+    H_B_g_j = (H_C_g_j * env_CellDen) > np.full((size_Pop,grid_Size), median_CellDen)
+    benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+
+    return benifit_sum, cost_sum, signal_cost, fitness
+
+if __name__ == "__main__":
+    test = np.array([1,2,3])
+    test2 = np.array([4,5,6,7])
+    thresholds = np.array([9,10,11])
+    matrix = np.full((4,3), test).transpose()
+    # print(matrix)
+    matrix2 = np.full((4,4), test2)
+    product = matrix.dot(matrix2) / 4
+    print(product)
+    threshold_matrix = np.full((4,3), thresholds).transpose()
+    print(threshold_matrix)
+    print(product > threshold_matrix)
+    print(((product > threshold_matrix) * test2)> np.full((3,4), 5.5))
