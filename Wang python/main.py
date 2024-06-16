@@ -296,7 +296,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 def vary_signal(sig_Cost):
     Auto=False
     # t = time.time_ns()
-    coop_Cost ,lam , K, mu_Cheats, max_G = 0.5, 0, 50.0, 10.0 ** -4, 5000
+    coop_Cost ,lam , K, mu_Cheats, max_G = 0.5, 0, 50.0, 10.0 ** -4, 500000
     fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
     # print((time.time_ns()-t)* 10 **-9)
     print(f'{sig_Cost // 10 ** 8} done') 
@@ -313,5 +313,5 @@ def vary_signal(sig_Cost):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 
-joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
+joblib.Parallel(n_jobs=7)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
 # look at figure 1 a and b and see if the eveo algorythm produces those cutoffs.
