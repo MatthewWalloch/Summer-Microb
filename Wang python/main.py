@@ -143,7 +143,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     if Auto:   
         coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
     else:
-        coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+        coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
     g = 0
     numCheats_Evo[g] = np.sum(index_Cheats)
         
@@ -280,17 +280,13 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         if Auto:   
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
         else:
-            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         
-        # if g % 1000 == 0:
-        #     print(g)
-        #     print((time.time_ns()-t)* 10 **-9)
-        #     t = time.time_ns()
+        if g % 100 == 0:
+            print(g)
+            print((time.time_ns()-t)* 10 **-9)
+            t = time.time_ns()
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
-
-
-
-
 
 
 def vary_signal(sig_Cost):
@@ -313,5 +309,22 @@ def vary_signal(sig_Cost):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 
-joblib.Parallel(n_jobs=7)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
-# look at figure 1 a and b and see if the eveo algorythm produces those cutoffs.
+if __name__ == "__main__":
+    # joblib.Parallel(n_jobs=7)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
+    Auto=False
+    # t = time.time_ns()
+    coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 10**9, 2, 50.0, 10.0 ** -4, 5000
+    fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
+    # print((time.time_ns()-t)* 10 **-9)
+    print(f'{sig_Cost // 10 ** 8} done') 
+    data = {"fit_Evo": fit_Evo.tolist(),
+            "pro_Rate_Evo": pro_Rate_Evo.tolist(),
+            "sig_Th_Evo": sig_Th_Evo.tolist(),
+            "auto_R_Evo": auto_R_Evo.tolist(),
+            "coopPayoff_Evo": coopPayoff_Evo.tolist(),
+            "sigCost_Evo": sigCost_Evo.tolist(),
+            "coopCost_Evo": coopCost_Evo.tolist(),
+            "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
+    t = time.asctime().replace(":", "-" )
+    with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
+        json.dump(data, f,  ensure_ascii=False, indent=4)

@@ -1,7 +1,7 @@
 import numpy as np
 import time 
 import joblib
-
+import random
 
 def cal_Signal_Concentration(p, N, u, r, K):
     #p, N, u, r: lists of the same size, either usually by genotype
@@ -147,28 +147,56 @@ def parallel_No_auto(size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_T
 def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
     grid_Size,base_Volume,decay_Rate,median_CellDen):
-    counter = 0
-    new_coopPayoff_Pop = []
-    new_coopCost_Pop = []
-    new_sigCost_Pop = []
-    new_fit_Pop = []
+    all_index = range(size_Pop)
     mixing_numbers = []
-    contribute = pro_Rate / decay_Rate 
-    matrix = np.full((grid_Size,size_Pop), contribute)
-    index_By_Den = env_CellDen * matrix.transpose()
-    while np.sum(mixing_numbers) < size_Pop:
-        mixing_numbers.append(sample_ztp(lam))
+    max_selection = 0
+    total = 0
+    conbined_rates = np.zeros(size_Pop)
+    thresholds = np.full((size_Pop, 40), np.full((40,), np.inf))
+    
+    
+    for i in range(size_Pop):
+        mix_Num = sample_ztp(lam)
+        if mix_Num > max_selection:
+            max_selection = mix_Num
+        mixing_numbers.append(1 / mix_Num)   
+        indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
+        conbined_rates[i] = np.average(pro_Rate[indexes])
+        thresholds[i][range(mix_Num)] = sig_Th[indexes]
+    thresholds = thresholds[:,:max_selection] 
+    
+    # print(selections)
+    # print(conbined_rates)
+    # print(thresholds)
+    # print(thresholds[:,1])
+    contribute = conbined_rates / decay_Rate 
+    contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
+    den_Matrix = np.full((grid_Size, grid_Size), env_CellDen)
+    threshold_matrix = np.full((grid_Size, size_Pop), thresholds[:,0]).transpose()
+    H_C_g_j = (env_CellDen * contribute_Matrix ) > threshold_matrix
+    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
+    H_B_g_j = (H_C_g_j * env_CellDen)
+    for i in range(1, max_selection):
+        threshold_matrix = np.full((grid_Size, size_Pop), thresholds[:,i]).transpose()
+        H_C_g_j = (env_CellDen * contribute_Matrix ) > threshold_matrix
+        H_B_g_j += (H_C_g_j * env_CellDen) 
+    H_B_g_j = (mixing_numbers * H_B_g_j.transpose()).transpose() > np.full((size_Pop,grid_Size), median_CellDen)      
+    benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+    
+    print(total* 10 **-9)
     # try looping through and doing everythign with numpy maybe? will probably work a bit better.
-    everything = joblib.Parallel(n_jobs=8)(joblib.delayed(parallel_No_auto_faster)(
-        size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline, index_By_Den) for mix_Num in mixing_numbers)
+    # everything = joblib.Parallel(n_jobs=8)(joblib.delayed(parallel_No_auto_faster)(
+    #     size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline, index_By_Den) for mix_Num in mixing_numbers)
 
-    for item in everything:
-        new_coopPayoff_Pop += item[0]
-        new_coopCost_Pop += item[1]
-        new_sigCost_Pop += item[2]
-        new_fit_Pop += item[3]
+    # for item in everything:
+    #     new_coopPayoff_Pop += item[0]
+    #     new_coopCost_Pop += item[1]
+    #     new_sigCost_Pop += item[2]
+    #     new_fit_Pop += item[3]
+    return benifit_sum, cost_sum, signal_cost, fitness
 
-    return np.array(new_coopPayoff_Pop[0:size_Pop]), np.array(new_coopCost_Pop[0:size_Pop]), np.array(new_sigCost_Pop[0:size_Pop]), np.array(new_fit_Pop[0:size_Pop])
 
 def eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
@@ -192,13 +220,14 @@ def eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sig
 if __name__ == "__main__":
     test = np.array([1,2,3])
     test2 = np.array([4,5,6,7])
-    thresholds = np.array([9,10,11])
-    matrix = np.full((4,3), test).transpose()
-    # print(matrix)
-    matrix2 = np.full((4,4), test2)
-    product = matrix.dot(matrix2) / 4
-    print(product)
-    threshold_matrix = np.full((4,3), thresholds).transpose()
-    print(threshold_matrix)
-    print(product > threshold_matrix)
-    print(((product > threshold_matrix) * test2)> np.full((3,4), 5.5))
+    print(test / [1,2,3])
+    # thresholds = np.array([[9,8],[10,0],[11,0]])
+    # matrix = np.full((4,3), test).transpose()
+    # # print(matrix)
+    # matrix2 = np.full((4,4), test2)
+    # product = matrix.dot(matrix2) / 4
+    # print(product)
+    # threshold_matrix = np.full((4,3), thresholds).transpose()
+    # print(threshold_matrix)
+    # print(product > threshold_matrix)
+    # print(((product > threshold_matrix) * test2)> np.full((3,4), 5.5))
