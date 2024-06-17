@@ -158,7 +158,7 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     index_By_Den = env_CellDen * matrix.transpose()
     while np.sum(mixing_numbers) < size_Pop:
         mixing_numbers.append(sample_ztp(lam))
-    
+    # try looping through and doing everythign with numpy maybe? will probably work a bit better.
     everything = joblib.Parallel(n_jobs=8)(joblib.delayed(parallel_No_auto_faster)(
         size_Pop, mix_Num, pro_Rate, decay_Rate, env_CellDen, sig_Th, median_CellDen, coop_Benefit, coop_Cost, sig_Cost, baseline, index_By_Den) for mix_Num in mixing_numbers)
 
@@ -187,6 +187,8 @@ def eval_genotype_No_Auto_No_Probability(fit_Pop,coopPayoff_Pop,coopCost_Pop,sig
 
     return benifit_sum, cost_sum, signal_cost, fitness
 
+
+# testing code:
 if __name__ == "__main__":
     test = np.array([1,2,3])
     test2 = np.array([4,5,6,7])
