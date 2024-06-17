@@ -308,15 +308,12 @@ def vary_signal(sig_Cost):
     with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
-
-if __name__ == "__main__":
-    # joblib.Parallel(n_jobs=7)(joblib.delayed(vary_signal)(cost * 10 ** 8) for cost in range(5, 105, 5))
+def vary_genotype(lam):
     Auto=False
-    # t = time.time_ns()
-    coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 10**9, 2, 50.0, 10.0 ** -4, 5000
+    t = time.time_ns()
+    coop_Cost, sig_Cost, K, mu_Cheats, max_G = 0.5, 10**9, 50.0, 10.0 ** -4, 500000
     fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
-    # print((time.time_ns()-t)* 10 **-9)
-    print(f'{sig_Cost // 10 ** 8} done') 
+    print(f'{lam} done: {(time.time_ns()-t)* 10 **-9}') 
     data = {"fit_Evo": fit_Evo.tolist(),
             "pro_Rate_Evo": pro_Rate_Evo.tolist(),
             "sig_Th_Evo": sig_Th_Evo.tolist(),
@@ -328,3 +325,25 @@ if __name__ == "__main__":
     t = time.asctime().replace(":", "-" )
     with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
+
+if __name__ == "__main__":
+    joblib.Parallel(n_jobs=8)(joblib.delayed(vary_genotype)(lam) for lam in np.arange(0, 10, .1))
+
+
+    # Auto=False
+    # # t = time.time_ns()
+    # coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 10**9, 3, 50.0, 10.0 ** -4, 5000
+    # fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
+    # # print((time.time_ns()-t)* 10 **-9)
+    # print(f'{sig_Cost // 10 ** 8} done') 
+    # data = {"fit_Evo": fit_Evo.tolist(),
+    #         "pro_Rate_Evo": pro_Rate_Evo.tolist(),
+    #         "sig_Th_Evo": sig_Th_Evo.tolist(),
+    #         "auto_R_Evo": auto_R_Evo.tolist(),
+    #         "coopPayoff_Evo": coopPayoff_Evo.tolist(),
+    #         "sigCost_Evo": sigCost_Evo.tolist(),
+    #         "coopCost_Evo": coopCost_Evo.tolist(),
+    #         "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
+    # t = time.asctime().replace(":", "-" )
+    # with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
+    #     json.dump(data, f,  ensure_ascii=False, indent=4)

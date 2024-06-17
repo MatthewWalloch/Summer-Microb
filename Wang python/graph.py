@@ -8,7 +8,7 @@ import numpy as np
 
 # 
 
-filename = "Wang python\json\Mon Jun 17 15-20-15 2024 0.5 1000000000 2 0.0001 False 5000.json"
+filename = "Wang python\json\Mon Jun 17 16-22-08 2024 0.5 1000000000 3 0.0001 False 5000.json"
 with open(filename, "r") as f:
     data = json.load(f)
 fig, ax = plt.subplots(4,2)
