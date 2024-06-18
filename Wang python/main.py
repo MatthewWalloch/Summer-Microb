@@ -282,9 +282,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         else:
             coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         
-        if g % 100 == 0:
-            print(g)
-            print((time.time_ns()-t)* 10 **-9)
+        if g % 1000 == 0:
+            print(f"{lam}: {g}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
@@ -311,7 +310,7 @@ def vary_signal(sig_Cost):
 def vary_genotype(lam):
     Auto=False
     t = time.time_ns()
-    coop_Cost, sig_Cost, K, mu_Cheats, max_G = 0.5, 10**9, 50.0, 10.0 ** -4, 500000
+    coop_Cost, sig_Cost, K, mu_Cheats, max_G = 0.5, 10**9, 50.0, 10.0 ** -4, 5000
     fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
     print(f'{lam} done: {(time.time_ns()-t)* 10 **-9}') 
     data = {"fit_Evo": fit_Evo.tolist(),
@@ -327,7 +326,7 @@ def vary_genotype(lam):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    joblib.Parallel(n_jobs=8)(joblib.delayed(vary_genotype)(lam) for lam in np.arange(0, 10, .1))
+    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(lam) for lam in np.arange(0, 10, .1))
 
 
     # Auto=False
