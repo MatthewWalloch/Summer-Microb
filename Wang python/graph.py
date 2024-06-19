@@ -110,4 +110,4 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
 
 if __name__ == "__main__":
     # graph("Wang python\json\Mon Jun 17 16-22-08 2024 0.5 1000000000 3 0.0001 False 5000.json")
-    graph_multiple(7, "Wang python\json\Evolve genotype", 0, 6, .1)
+    graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
