@@ -1,0 +1,26 @@
+{
+    "fit_Evo": [
+        98.0
+    ],
+    "pro_Rate_Evo": [
+        5e-09
+    ],
+    "sig_Th_Evo": [
+        5.0
+    ],
+    "auto_R_Evo": [
+        5.0
+    ],
+    "coopPayoff_Evo": [
+        4.5
+    ],
+    "sigCost_Evo": [
+        5.0
+    ],
+    "coopCost_Evo": [
+        1.5
+    ],
+    "auto_pro_Rate_Evo": [
+        0.0
+    ]
+}

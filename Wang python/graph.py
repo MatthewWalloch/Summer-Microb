@@ -32,6 +32,9 @@ def graph(filename):
 
     ax[3,1].plot(range(max_G), data["auto_pro_Rate_Evo"])
     ax[3,1].set_title("auto_pro_Rate_Evo")
+
+    ax[3,0].plot(range(max_G), data["auto_R_Evo"])
+    ax[3,0].set_title("auto_R_Evo")
     plt.tight_layout()
     plt.show()
 
@@ -109,5 +112,5 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     plt.show()
 
 if __name__ == "__main__":
-    # graph("Wang python\json\Mon Jun 17 16-22-08 2024 0.5 1000000000 3 0.0001 False 5000.json")
-    graph_multiple(7, "Wang python\json\Evolve genotype", 0, 6, .1)
+    graph("Wang python\json\old test,might be usefull but largly incorrect\Wed Jun 19 12-18-15 2024 0.5 1000000000 3 0.0001 True 5000.json")
+    # graph_multiple(7, "Wang python\json\Evolve genotype", 0, 6, .1)
