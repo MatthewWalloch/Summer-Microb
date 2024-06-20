@@ -46,11 +46,14 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     costs = []
     for path, directories, files in os.walk(folder_name):
         for file in files:
-            cost = np.round(float(file.split(" ")[split_value]), decimals=1)
+            cost = int(file.split(" ")[split_value]) // 10 **8
             filename = path+"\\"+file
             with open(filename, "r") as f:
                 data = json.load(f)
             max_G = len(data["fit_Evo"])
+            ax[0,0].plot(range(max_G), data["auto_R_Evo"], color=scalarMap.to_rgba(cost))
+            ax[0,0].set_title("Autio ratio")
+
             ax[3,1].plot(range(max_G), data["fit_Evo"], color=scalarMap.to_rgba(cost))
             ax[3,1].set_title("fit_Evo vs generation")
 
@@ -74,28 +77,23 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
             threshold.append(np.mean(data["sig_Th_Evo"][-50:]))
             costs.append(cost)
 
-    # ax[0,0].bar([i for i in np.arange(minimum, maximum, step)], 
-    #         [1 for i in np.arange(minimum,maximum,step)], 
-    #         width=5,
-    #         tick_label=[i for i in np.arange(minimum, maximum, step)],
-    #         color=[scalarMap.to_rgba(i) for i in np.arange(minimum, maximum, step)])
-    # ax[0,0].set_xlabel("Cost of signaling (10^8 FU)")
-    ax[0,0].scatter(costs, prod,color="blue")
-    ax[0,0].set_ylim([0,1.5*10**-8])
-    another = ax[0,0].twinx()
-    another.scatter(costs, threshold,color="red")
+    
+    # ax[0,0].scatter(costs, prod,color="blue")
+    # ax[0,0].set_ylim([0,1.5*10**-8])
+    # another = ax[0,0].twinx()
+    # another.scatter(costs, threshold,color="red")
 
-    another.set_ylim([0,20])
-    ax[0,0].set_xlim([0,10])
-    ax[0,0].spines['right'].set_color('red')
-    ax[0,0].spines['left'].set_color('blue')
-    ax[0,0].tick_params(axis="y", colors="blue")
-    another.tick_params(axis="y", colors="red")
+    # another.set_ylim([0,20])
+    # ax[0,0].set_xlim([0,10])
+    # ax[0,0].spines['right'].set_color('red')
+    # ax[0,0].spines['left'].set_color('blue')
+    # ax[0,0].tick_params(axis="y", colors="blue")
+    # another.tick_params(axis="y", colors="red")
 
     
-    ax[0,0].set_xlabel("Average genotype per group")
-    ax[0,0].set_ylabel("Evolved production rate")
-    another.set_ylabel("Evolved signal Threshold")
+    # ax[0,0].set_xlabel("Average genotype per group")
+    # ax[0,0].set_ylabel("Evolved production rate")
+    # another.set_ylabel("Evolved signal Threshold")
     # ax[0,0].set_title("Evolved production rate (red) and Signal Threshold(red) vs genotype")
     
 
@@ -110,4 +108,4 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
 
 if __name__ == "__main__":
     # graph("Wang python\json\Mon Jun 17 16-22-08 2024 0.5 1000000000 3 0.0001 False 5000.json")
-    graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
+    graph_multiple(6, "Wang python\json\\autoreg", 5, 105, 5)
