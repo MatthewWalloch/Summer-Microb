@@ -46,13 +46,13 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     costs = []
     for path, directories, files in os.walk(folder_name):
         for file in files:
-            cost = int(file.split(" ")[split_value]) // 10 **8
+            cost = int(file.split(" ")[split_value])
             filename = path+"\\"+file
             with open(filename, "r") as f:
                 data = json.load(f)
             max_G = len(data["fit_Evo"])
-            ax[0,0].plot(range(max_G), data["auto_R_Evo"], color=scalarMap.to_rgba(cost))
-            ax[0,0].set_title("Autio ratio")
+            ax[0,0].plot(range(max_G), data["auto_pro_Rate_Evo"], color=scalarMap.to_rgba(cost))
+            ax[0,0].set_title("auto_pro_Rate_Evo")
 
             ax[3,1].plot(range(max_G), data["fit_Evo"], color=scalarMap.to_rgba(cost))
             ax[3,1].set_title("fit_Evo vs generation")

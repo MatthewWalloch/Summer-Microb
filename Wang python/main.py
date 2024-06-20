@@ -165,6 +165,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         temp_coopCost_Pop = np.zeros(size_Pop)
         temp_sigCost_Pop = np.zeros(size_Pop)
         temp_index_Cheats = np.zeros(size_Pop)
+        temp_auto_R = np.zeros(size_Pop)
+        temp_auto_pro_Rate = np.zeros(size_Pop)
 
         # everything = zip(pro_Rate, sig_Th, fit_Pop, coopPayoff_Pop, coopCost_Pop, sigCost_Pop, index_Cheats)
         # sort = sorted(everything, key= lambda pair: pair[2])
@@ -201,19 +203,18 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
             temp_sigCost_Pop[n] = sigCost_Pop[int(index_Select[n])]
             temp_index_Cheats[n] = index_Cheats[int(index_Select[n])]
-            if Auto: 
-                temp_auto_R[n] = auto_R[int(index_Select[n])]
-                temp_auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
-            else:
-                pass
+            temp_auto_R[n] = auto_R[int(index_Select[n])]
+            temp_auto_pro_Rate[n] = auto_pro_Rate[int(index_Select[n])]
         
-        pro_Rate=temp_pro_Rate
-        sig_Th=temp_sig_Th
-        fit_Pop=temp_fit_Pop
-        coopPayoff_Pop=temp_coopPayoff_Pop 
-        coopCost_Pop=temp_coopCost_Pop
-        igCost_Pop=temp_sigCost_Pop
-        index_Cheats=temp_index_Cheats
+        pro_Rate = temp_pro_Rate
+        sig_Th = temp_sig_Th
+        fit_Pop = temp_fit_Pop
+        coopPayoff_Pop = temp_coopPayoff_Pop 
+        coopCost_Pop = temp_coopCost_Pop
+        igCost_Pop = temp_sigCost_Pop
+        index_Cheats = temp_index_Cheats
+        auto_pro_Rate = temp_auto_pro_Rate
+        auto_R = temp_auto_R
         
         # # generate cheats -- 0 sec
         # if numCheats_Evo[g] < size_Pop:
@@ -235,10 +236,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         sig_Th = mut_parameter(sig_Th,mu_Th_Signal,mu_SD_sigTh,min_sigTh,max_sigTh,index_Cheats,size_Pop)
 
         # mutate ratio of autoinduction production
-        if Auto:
-            auto_R = mut_parameter(auto_R,mu_R,mu_SD_R,min_R,max_R,index_Cheats,size_Pop)
-        else: 
-            pass
+        auto_R = mut_parameter(auto_R,mu_R,mu_SD_R,min_R,max_R,index_Cheats,size_Pop)
         # record cheats
         numCheats_Evo[g] = np.sum(index_Cheats)
         
@@ -277,7 +275,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         
         # genotype evaluation
         
-        if Auto:   
+        if Auto: 
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
         else:
             coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
@@ -289,10 +287,10 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
 
 
 def vary_signal(sig_Cost):
-    Auto=True
+    auto=True
     # t = time.time_ns()
     coop_Cost ,lam , K, mu_Cheats, max_G = 0.5, 0, 50.0, 10.0 ** -4, 5000
-    fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
+    fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=auto)
     # print((time.time_ns()-t)* 10 **-9)
     print(f'{sig_Cost // 10 ** 8} done') 
     data = {"fit_Evo": fit_Evo.tolist(),
@@ -304,14 +302,14 @@ def vary_signal(sig_Cost):
             "coopCost_Evo": coopCost_Evo.tolist(),
             "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
     t = time.asctime().replace(":", "-" )
-    with open(f"Wang python\json\\autoreg\\{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
+    with open(f"Wang python\json\\autoreg\\{t} {coop_Cost} {sig_Cost // 10**8} {lam} {mu_Cheats} {auto} {max_G}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 def vary_genotype(lam):
-    Auto=False
+    Auto=True
     t = time.time_ns()
     coop_Cost, sig_Cost, K, mu_Cheats, max_G = 0.5, 10**9, 50.0, 10.0 ** -4, 5000
-    fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
+    fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=auto)
     print(f'{lam} done: {(time.time_ns()-t)* 10 **-9}') 
     data = {"fit_Evo": fit_Evo.tolist(),
             "pro_Rate_Evo": pro_Rate_Evo.tolist(),
@@ -326,7 +324,7 @@ def vary_genotype(lam):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    joblib.Parallel(n_jobs=4)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
+    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
 
 
     # Auto=False
