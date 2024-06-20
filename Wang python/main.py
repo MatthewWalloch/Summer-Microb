@@ -140,9 +140,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
     # Evolution
     ################################################################################
     # initial evaluation
-    
     if Auto:   
-        coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+        coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
     else:
         coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
     g = 0
@@ -166,13 +165,31 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         temp_coopCost_Pop = np.zeros(size_Pop)
         temp_sigCost_Pop = np.zeros(size_Pop)
         temp_index_Cheats = np.zeros(size_Pop)
-        temp_auto_R = np.zeros(size_Pop)
-        temp_auto_pro_Rate = np.zeros(size_Pop)
+
+        # everything = zip(pro_Rate, sig_Th, fit_Pop, coopPayoff_Pop, coopCost_Pop, sigCost_Pop, index_Cheats)
+        # sort = sorted(everything, key= lambda pair: pair[2])
+        # number_of_top = size_Pop // 100
+        # for i in range(number_of_top):
+        #     for j in range(10):
+        #         n = i*10 + j
+        #         temp_pro_Rate[n] = sort[-i][0]
+        #         temp_sig_Th[n] = sort[-i][1]
+        #         temp_fit_Pop[n] = sort[-i][2]
+        #         temp_coopPayoff_Pop[n] = sort[-i][3]
+        #         temp_coopCost_Pop[n] = sort[-i][4]
+        #         temp_sigCost_Pop[n] = sort[-i][5]
+        #         temp_index_Cheats[n] = sort[-i][6]
+
+        # print(fit_pop_probability)
+        # print(index_Select)
+        # update
+        #0.01... sec\
         
         for i in range(len(fit_Pop)):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0
-        fit_pop_probability = fit_Pop / sum(fit_Pop)
+        fit_pop_probability = fit_Pop
+        fit_pop_probability = fit_pop_probability / sum(fit_pop_probability)
         index_Select = np.random.choice(size_Pop, size=size_Pop, p=fit_pop_probability)
 
         for n in range(len(index_Select)):
@@ -190,15 +207,13 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
             else:
                 pass
         
-        pro_Rate = temp_pro_Rate
-        sig_Th = temp_sig_Th
-        fit_Pop = temp_fit_Pop
-        coopPayoff_Pop = temp_coopPayoff_Pop 
-        coopCost_Pop = temp_coopCost_Pop
-        igCost_Pop = temp_sigCost_Pop
-        index_Cheats = temp_index_Cheats
-        auto_R = temp_auto_R
-        auto_pro_Rate = temp_auto_pro_Rate
+        pro_Rate=temp_pro_Rate
+        sig_Th=temp_sig_Th
+        fit_Pop=temp_fit_Pop
+        coopPayoff_Pop=temp_coopPayoff_Pop 
+        coopCost_Pop=temp_coopCost_Pop
+        igCost_Pop=temp_sigCost_Pop
+        index_Cheats=temp_index_Cheats
         
         # # generate cheats -- 0 sec
         # if numCheats_Evo[g] < size_Pop:
@@ -211,6 +226,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         #             sig_Th[n] = cheats_sigTh
         
         
+        # while section <<.005
+        # mutate production rate
         
         pro_Rate = mut_parameter(pro_Rate,mu_Production,mu_SD_ProRate,min_ProRate,max_ProRate,index_Cheats,size_Pop)
 
@@ -261,18 +278,18 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500):
         # genotype evaluation
         
         if Auto:   
-            coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
+            coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
         else:
             coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         
-        if g % 100 == 0:
-            print(f"{g}    {(time.time_ns()-t)* 10 **-9}")
+        if g % 1000 == 0:
+            print(f"{sig_Cost}: {g}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
 
 def vary_signal(sig_Cost):
-    Auto=False
+    Auto=True
     # t = time.time_ns()
     coop_Cost ,lam , K, mu_Cheats, max_G = 0.5, 0, 50.0, 10.0 ** -4, 5000
     fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
@@ -287,7 +304,7 @@ def vary_signal(sig_Cost):
             "coopCost_Evo": coopCost_Evo.tolist(),
             "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
     t = time.asctime().replace(":", "-" )
-    with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
+    with open(f"Wang python\json\Autoreg cost{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 def vary_genotype(lam):
@@ -309,23 +326,23 @@ def vary_genotype(lam):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(lam) for lam in np.arange(0, 10, .1))
+    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10^8) for sig_Cost in range(5,105,5))
 
 
-    Auto=True
-    # t = time.time_ns()
-    coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 10**9, 3, 50.0, 10.0 ** -4, 5000
-    fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto)
-    # print((time.time_ns()-t)* 10 **-9)
+    # Auto=False
+    # # t = time.time_ns()
+    # coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 10**9, 3, 50.0, 10.0 ** -4, 5000
+    # fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G)
+    # # print((time.time_ns()-t)* 10 **-9)
     # print(f'{sig_Cost // 10 ** 8} done') 
-    data = {"fit_Evo": fit_Evo.tolist(),
-            "pro_Rate_Evo": pro_Rate_Evo.tolist(),
-            "sig_Th_Evo": sig_Th_Evo.tolist(),
-            "auto_R_Evo": auto_R_Evo.tolist(),
-            "coopPayoff_Evo": coopPayoff_Evo.tolist(),
-            "sigCost_Evo": sigCost_Evo.tolist(),
-            "coopCost_Evo": coopCost_Evo.tolist(),
-            "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
-    t = time.asctime().replace(":", "-" )
-    with open(f"Wang python\json\old test,might be usefull but largly incorrect\{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
-        json.dump(data, f,  ensure_ascii=False, indent=4)
+    # data = {"fit_Evo": fit_Evo.tolist(),
+    #         "pro_Rate_Evo": pro_Rate_Evo.tolist(),
+    #         "sig_Th_Evo": sig_Th_Evo.tolist(),
+    #         "auto_R_Evo": auto_R_Evo.tolist(),
+    #         "coopPayoff_Evo": coopPayoff_Evo.tolist(),
+    #         "sigCost_Evo": sigCost_Evo.tolist(),
+    #         "coopCost_Evo": coopCost_Evo.tolist(),
+    #         "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
+    # t = time.asctime().replace(":", "-" )
+    # with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
+    #     json.dump(data, f,  ensure_ascii=False, indent=4)
