@@ -326,7 +326,7 @@ def vary_genotype(lam):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10^8) for sig_Cost in range(5,105,5))
+    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
 
 
     # Auto=False
