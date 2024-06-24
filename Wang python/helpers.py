@@ -60,7 +60,7 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
         thresholds[i][range(mix_Num)] = sig_Th[indexes]
     thresholds = thresholds[:,:max_selection] 
 
-
+    # work out matricies and broadcasting here, try mathematica notebook?
     threshold_matrix = np.full((grid_Size, size_Pop), thresholds[:,0])
     H_C_g_j = conbined_rates > threshold_matrix.transpose()
     cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
@@ -71,6 +71,7 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
         H_B_g_j += (H_C_g_j * env_CellDen) 
     H_B_g_j = (mixing_numbers * H_B_g_j.transpose()).transpose() > np.full((size_Pop,grid_Size), median_CellDen)      
     benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    # test this is the right average bellow, check against paper
     s_star = contribute.transpose().dot(np.ones(grid_Size)) / grid_Size
     auto_pro_Rate = auto_R * (s_star / (K+s_star)) * pro_Rate
     signal_cost = (pro_Rate + auto_pro_Rate) * sig_Cost 
