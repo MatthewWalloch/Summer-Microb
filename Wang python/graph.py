@@ -107,5 +107,5 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     plt.show()
 
 if __name__ == "__main__":
-    graph("Wang python\json\Mon Jun 24 11-53-59 2024 0.5 1000000000 4 0.0001 True 5000.json")
-    # graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
+    # graph("Wang python\json\Mon Jun 24 11-48-07 2024 0.5 1000000000 0 0.0001 True 5000.json")
+    graph_multiple(7, "Wang python\json\genotype with auto", 0, 10, .1)

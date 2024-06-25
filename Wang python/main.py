@@ -274,8 +274,8 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clon
             else:
                 coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
 
-        if g % 1000 == 0:
-            print(f"{sig_Cost}: {g}    {(time.time_ns()-t)* 10 **-9}")
+        if g % 500 == 0:
+            print(f"{lam}: {g}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
 
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
@@ -316,12 +316,12 @@ def vary_genotype(lam, auto, clonal):
             "coopCost_Evo": coopCost_Evo.tolist(),
             "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
     t = time.asctime().replace(":", "-" )
-    with open(f"Wang python/json/{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {Auto} {max_G}.json", "w") as f:
+    with open(f"Wang python\json\genotype with auto\{t} {coop_Cost} {sig_Cost} {lam} {mu_Cheats} {auto} {max_G}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
-    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True, False) for lam in np.arange(0,10,step=.1))
+    joblib.Parallel(n_jobs=10)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True, False) for lam in np.arange(0,10,step=.1))
     # Auto = True
     # clonal = False
     # # t = time.time_ns()
