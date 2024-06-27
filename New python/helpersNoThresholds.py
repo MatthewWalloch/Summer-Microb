@@ -51,7 +51,63 @@ def eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop
 
     return benifit_sum, cost_sum, signal_cost, fitness
 
+def eval_genotype_No_Auto_All(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
+    pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen):
 
+    contribute = pro_Rate / decay_Rate 
+    contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
+    den_Matrix = np.full((grid_Size, grid_Size), env_CellDen)
+
+    H_C_g_j = sensitivity * (env_CellDen * contribute_Matrix).transpose() 
+    H_C_g_j = H_C_g_j.transpose()
+    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
+    
+    H_B_g_j = np.mean(H_C_g_j * env_CellDen, axis=0) > np.full((grid_Size), median_CellDen)
+    benifit_sum = np.full((size_Pop,), H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit)
+    signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+
+    return benifit_sum, cost_sum, signal_cost, fitness
+
+
+def random_parallel(i, rng, lam, size_Pop, pro_Rate, sensitivity, env_CellDen, grid_Size, median_CellDen, decay_Rate):
+    mix_Num = sample_ztp(lam)
+    indexes = np.array(np.append([i], rng.integers(0, high=size_Pop, size=(mix_Num-1,))))
+    # bellow is faster but "less random"
+    # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
+
+    conbined_rates = np.average(pro_Rate[indexes]*sensitivity[indexes])
+    contribute = conbined_rates / decay_Rate
+    H_C_g_j = (env_CellDen * contribute)
+    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) 
+    H_B_g_j = (H_C_g_j * env_CellDen) > np.full((grid_Size,), median_CellDen)      
+    benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) 
+    return benifit_sum, cost_sum
+
+
+def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
+    pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen):
+    rng = np.random.default_rng()    
+        
+    conbined_rates = np.array(joblib.Parallel(n_jobs= 4)(joblib.delayed(random_parallel)( i, rng, lam, size_Pop, pro_Rate, sensitivity, env_CellDen, grid_Size, median_CellDen, decay_Rate) for i in range(size_Pop)))
+
+    benifit_sum = conbined_rates[:, 0] * coop_Benefit
+    cost_sum = conbined_rates[:,1] * coop_Cost
+    signal_cost = pro_Rate * sig_Cost
+   
+    # contribute = conbined_rates / decay_Rate
+    # contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
+    # H_C_g_j = (env_CellDen * contribute_Matrix) 
+    # cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
+    # H_B_g_j = (H_C_g_j * env_CellDen) > np.full((size_Pop,grid_Size), median_CellDen)      
+    # benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    # signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+
+
+    return benifit_sum, cost_sum, signal_cost, fitness
 
 
 

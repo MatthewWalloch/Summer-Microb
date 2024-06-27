@@ -49,7 +49,7 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     prod = []
     threshold  = []
     costs = []
-    ax[0,0].plot(range(max_G), np.full((max_G,), 50016 ), color="black")
+    
     for path, directories, files in os.walk(folder_name):
         for file in files:
             # cost = int(file.split(" ")[split_value])
@@ -76,7 +76,7 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
             ax[1,1].plot(range(max_G), data["sigCost_Evo"], color=scalarMap.to_rgba(cost))
             ax[1,1].set_title("sigCost_Evo vs generation")
 
-            ax[2,1].plot(range(max_G), data["coopCost_Evo"] / .5, color=scalarMap.to_rgba(cost))
+            ax[2,1].plot(range(max_G), np.array(data["coopCost_Evo"]) / .5, color=scalarMap.to_rgba(cost))
             ax[2,1].set_title("coopCost_Evo vs generation")
 
             prod.append(np.mean(data["pro_Rate_Evo"][-50:]))
@@ -102,6 +102,7 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     ax[1,0].scatter(prod, threshold, color= scalarMap.to_rgba(costs))
     ax[1,0].set_xlabel("evolved production rate")
     ax[1,0].set_ylabel("evolved siginaling threshold")
+    ax[0,0].plot(range(max_G), np.full((max_G,), 50016 ), color="black")
 
     plt.colorbar(scalarMap, ax=ax[1,0])
     plt.tight_layout()
