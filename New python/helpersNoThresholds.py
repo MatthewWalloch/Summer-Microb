@@ -91,18 +91,24 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     grid_Size,base_Volume,decay_Rate,median_CellDen):
     rng = np.random.default_rng()    
         
-    conbined_rates = np.array(joblib.Parallel(n_jobs= 4)(joblib.delayed(random_parallel)( i, rng, lam, size_Pop, pro_Rate, sensitivity, env_CellDen, grid_Size, median_CellDen, decay_Rate) for i in range(size_Pop)))
+    # conbined_rates = np.array(joblib.Parallel(n_jobs= 4)(joblib.delayed(random_parallel)( i, rng, lam, size_Pop, pro_Rate, sensitivity, env_CellDen, grid_Size, median_CellDen, decay_Rate) for i in range(size_Pop)))
 
-    benifit_sum = conbined_rates[:, 0] * coop_Benefit
-    cost_sum = conbined_rates[:,1] * coop_Cost
-    signal_cost = pro_Rate * sig_Cost
-   
-    # contribute = conbined_rates / decay_Rate
-    # contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
-    # H_C_g_j = (env_CellDen * contribute_Matrix) 
-    # cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
-    # H_B_g_j = (H_C_g_j * env_CellDen) > np.full((size_Pop,grid_Size), median_CellDen)      
-    # benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    benifit_sum = np.zeros(size_Pop)
+    cost_sum = np.zeros(size_Pop)
+    signal_cost = np.zeros(size_Pop)
+    for i in range(size_Pop):
+        mix_Num = sample_ztp(lam)
+        indexes = np.array(np.append([i], rng.integers(0, high=size_Pop, size=(mix_Num-1,))))
+        # bellow is faster but "less random"
+        # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
+
+        conbined_rates = np.average(pro_Rate[indexes]*sensitivity[indexes])
+        contribute = conbined_rates / decay_Rate
+        H_C_g_j = (env_CellDen * contribute)
+        cost_sum[i] =  H_C_g_j.dot(np.ones(grid_Size)) 
+        H_B_g_j = (H_C_g_j * env_CellDen) > np.full((grid_Size,), median_CellDen)      
+        benifit_sum[i] = H_B_g_j.dot(np.ones(grid_Size)) 
+        signal_cost[i] = pro_Rate[i] * sig_Cost
     # signal_cost = pro_Rate * sig_Cost
     fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
 

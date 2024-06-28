@@ -229,10 +229,10 @@ def graph_last_gen(file):
 
 
 if __name__ == "__main__":
-    file = "New python\json\\testing results\generation histograms\gen 24000 Thu Jun 27 15-25-13 2024 0.2 1000000000 25000 False.json"
-    # graph(file)
-    graph_last_gen(file)
-    # # graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
+    file = "New python\json\\testing results\Thu Jun 27 15-27-32 2024 0.2 1000000000 25000 False.json"
+    graph(file)
+    # graph_last_gen(file)
+    graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
     
 
 
