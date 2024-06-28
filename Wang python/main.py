@@ -321,7 +321,7 @@ def vary_genotype(lam, auto, clonal):
 
 if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
-    joblib.Parallel(n_jobs=10)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True, False) for lam in np.arange(0,10,step=.1))
+    joblib.Parallel(n_jobs=10)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True, False) for lam in np.arange(7.1,10,step=.1))
     # Auto = True
     # clonal = False
     # # t = time.time_ns()
