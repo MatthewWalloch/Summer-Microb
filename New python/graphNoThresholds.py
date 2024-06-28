@@ -4,6 +4,7 @@ import matplotlib.cm as cmx
 import json
 import os
 import numpy as np
+import testing
 
 
 # 
@@ -50,8 +51,8 @@ def graph(filename):
     # ax[3,1].plot(range(max_G), np.array(data["auto_pro_Rate_Evo"])+np.array(data["pro_Rate_Evo"]))
     # ax[3,1].set_title("total production")
 
-    ax[3,0].plot(range(max_G), data["auto_R_Evo"])
-    ax[3,0].set_title("auto_R_Evo")
+    ax[3,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"])/  10.0 ** -4 )
+    ax[3,0].set_title("S*p/u")
     plt.tight_layout()
     plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
     plt.show()
@@ -124,25 +125,119 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
     plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
     plt.show()
 
-if __name__ == "__main__":
-    file = "New python\json\\testing results\\50000 test .1 sense.json"
-    # graph(file)
-    # graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
+
+def graph_last_gen(file):
+    
     with open(file, "r") as f:
         data = json.load(f)
-    max_G= len(data["fit_Evo"])
-    
-    # maximum cellular density (cells per microliter)
-    max_CellDen = 10.0 ** 5
-    # minimum cellular density
-    min_CellDen = 10.0 ** 1.5
-    grid_Size = 100
-    env_CellDen = np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size)))
+    fig, ax = plt.subplots(4,2)
+    binNo = 100
+    fit_Pop = data["fit_Pop"]
     cm = plt.get_cmap("plasma")
-    cNorm = colors.Normalize(vmin=min_CellDen, vmax= max_CellDen)
+    q1, mead, q3 = np.quantile(fit_Pop, [.25,.5,.75])
+    cNorm = colors.CenteredNorm(vcenter=mead, halfrange=(q3-q1))
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
-    for j in env_CellDen:
-        plt.plot(range(max_G), (np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"])/  10.0 ** -4 ), color=scalarMap.to_rgba(j)) # /  10.0 ** -4 * j ** 2
-    plt.title("testing")
-    # plt.plot(range(600), np.full((600,), 50016 ), color="black")
+
+    name = "fit_Pop"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[0,0].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[0,0].set_title("fit_Pop historgram")
+
+    name = "coopPayoff_Pop"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[1,0].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[1,0].set_title("coopPayoff_Pop historgram")
+
+    
+    name = "sigCost_Pop"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[2,0].bar(x, counts, color=bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[2,0].set_title("sigCost_Pop historgram")
+ 
+    name = "coopCost_Pop"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[3,0].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[3,0].set_title("coopCost_Pop historgram")
+
+    name = "pro_Rate"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[0,1].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[0,1].set_title("pro_Rate historgram")
+
+    name = "sensitivity"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[1,1].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[1,1].set_title("sensitivity historgram")
+
+
+    ax[2,1].scatter(data["pro_Rate"], data["sensitivity"],color=scalarMap.to_rgba(fit_Pop), s=3)
+    ax[2,1].set_title("production rate vs sensitivity")
+
+    data["ratio"] = np.array(data["sensitivity"])* np.array(data["pro_Rate"]) / 10 ** -4
+    name = "ratio"
+    bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
+    bincolor= []
+    x = np.histogram_bin_edges(data[name],bins=binNo)[:-1]
+    counts =[]
+    for i in range(binNo):
+        counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
+        bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
+    ax[3,1].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+    ax[3,1].set_title("ratio historgram")
+
+    
+
+    plt.tight_layout()
+    plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
     plt.show()
+
+
+if __name__ == "__main__":
+    file = "New python\json\\testing results\Thu Jun 27 15-27-32 2024 0.2 1000000000 25000 False.json"
+    graph(file)
+    # graph_last_gen(file)
+    graph_multiple(7, "Wang python\json\Evolve genotype", 0, 10, .1)
+    
+
+
+    # steps = np.linspace(0, 6e-5, num=10000)
+    # plt.plot(steps, [testing.fitness_sum(c) for c in steps])
+    # plt.xlabel("S*p/u")
+    # plt.ylabel("Benifit minus cooperation")
+    # plt.show()
