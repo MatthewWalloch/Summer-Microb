@@ -47,62 +47,64 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
 
     max_G= 5000
     prod = []
+    totalprod =[]
     threshold  = []
     costs = []
-    
+    ax[0,0].plot(range(max_G), np.full((max_G,), 50016 ), color="black")
     for path, directories, files in os.walk(folder_name):
         for file in files:
             # cost = int(file.split(" ")[split_value])
-            cost = np.round(float(file.split(" ")[split_value]), decimals=1) // 10**8
+            cost = np.round(float(file.split(" ")[split_value]), decimals=1)
             filename = path+"\\"+file
             with open(filename, "r") as f:
                 data = json.load(f)
             max_G = len(data["fit_Evo"])
-            ax[0,0].plot(range(max_G), np.array(data["sig_Th_Evo"]) /np.array(data["pro_Rate_Evo"]) *  10.0 ** -4, color=scalarMap.to_rgba(cost))
-            ax[0,0].set_title("testing")
+            # ax[0,0].plot(range(max_G), np.array(data["sig_Th_Evo"]) /np.array(data["pro_Rate_Evo"]) *  10.0 ** -4, color=scalarMap.to_rgba(cost))
+            # ax[0,0].set_title("testing")
 
             ax[3,1].plot(range(max_G), data["fit_Evo"], color=scalarMap.to_rgba(cost))
             ax[3,1].set_title("fit_Evo vs generation")
 
-            ax[2,0].plot(range(max_G), data["pro_Rate_Evo"], color=scalarMap.to_rgba(cost))
-            ax[2,0].set_title("pro_Rate_Evo vs generation")
+            ax[2,0].plot(range(max_G), np.array(data["pro_Rate_Evo"])+np.array(data["auto_pro_Rate_Evo"]), color=scalarMap.to_rgba(cost))
+            ax[2,0].set_title("total production vs generation")
 
             ax[3,0].plot(range(max_G), data["sig_Th_Evo"], color=scalarMap.to_rgba(cost))
             ax[3,0].set_title("sig_Th_Evo vs generation")
 
-            ax[0,1].plot(range(max_G), np.array(data["coopPayoff_Evo"]) / 1.5, color=scalarMap.to_rgba(cost))
+            ax[0,1].plot(range(max_G), np.array(data["coopPayoff_Evo"]), color=scalarMap.to_rgba(cost))
             ax[0,1].set_title("coopPayoff_Evo vs generation")
             
             ax[1,1].plot(range(max_G), data["sigCost_Evo"], color=scalarMap.to_rgba(cost))
             ax[1,1].set_title("sigCost_Evo vs generation")
 
-            ax[2,1].plot(range(max_G), np.array(data["coopCost_Evo"]) / .5, color=scalarMap.to_rgba(cost))
+            ax[2,1].plot(range(max_G), data["coopCost_Evo"], color=scalarMap.to_rgba(cost))
             ax[2,1].set_title("coopCost_Evo vs generation")
 
             prod.append(np.mean(data["pro_Rate_Evo"][-50:]))
+            totalprod.append(np.mean(data["pro_Rate_Evo"][-50:])+ np.mean(data["auto_pro_Rate_Evo"][-50:]))
             threshold.append(np.mean(data["sig_Th_Evo"][-50:]))
             costs.append(cost)
 
     
-    # ax[0,0].scatter(costs, prod,color="blue")
-    # ax[0,0].set_ylim([0,1.5*10**-8])
-    # another = ax[0,0].twinx()
-    # another.scatter(costs, threshold,color="red")
-    # another.set_ylim([0,20])
-    # ax[0,0].set_xlim([0,10])
-    # another.spines['right'].set_color('red')
-    # another.spines['left'].set_color('blue')
-    # ax[0,0].tick_params(axis="y", colors="blue")
-    # another.tick_params(axis="y", colors="red")
-    # ax[0,0].set_xlabel("Average genotype per group")
-    # ax[0,0].set_ylabel("Evolved production rate")
-    # another.set_ylabel("Evolved signal Threshold")
-    # ax[0,0].set_title("Evolved production rate (red) and Signal Threshold(red) vs genotype")
+    ax[0,0].scatter(costs, totalprod,color="blue", marker="^")
+    ax[0,0].scatter(costs, prod, color="blue")
+    ax[0,0].set_ylim([0,1.5*10**-8])
+    another = ax[0,0].twinx()
+    another.scatter(costs, threshold,color="red")
+    another.set_ylim([0,20])
+    ax[0,0].set_xlim([0,10])
+    another.spines['right'].set_color('red')
+    another.spines['left'].set_color('blue')
+    ax[0,0].tick_params(axis="y", colors="blue")
+    another.tick_params(axis="y", colors="red")
+    ax[0,0].set_xlabel("Average genotype per group")
+    ax[0,0].set_ylabel("Evolved production rate")
+    another.set_ylabel("Evolved signal Threshold")
+    ax[0,0].set_title("Evolved production rate (red) and Signal Threshold(red) vs genotype")
 
     ax[1,0].scatter(prod, threshold, color= scalarMap.to_rgba(costs))
     ax[1,0].set_xlabel("evolved production rate")
     ax[1,0].set_ylabel("evolved siginaling threshold")
-    ax[0,0].plot(range(max_G), np.full((max_G,), 50016 ), color="black")
 
     plt.colorbar(scalarMap, ax=ax[1,0])
     plt.tight_layout()
@@ -111,4 +113,4 @@ def graph_multiple(split_value, folder_name, minimum, maximum, step):
 
 if __name__ == "__main__":
     # graph("Wang python\json\Mon Jun 24 11-53-59 2024 0.5 1000000000 4 0.0001 True 5000.json")
-    graph_multiple(6, "Wang python\json\Fig1", 5, 105, 5)
+    graph_multiple(7, "Wang python\json\genotype with auto", 0, 10, .1)

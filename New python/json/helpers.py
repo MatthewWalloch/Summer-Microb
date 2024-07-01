@@ -2,7 +2,7 @@ import numpy as np
 import time 
 import joblib
 import random
-import fastrand
+
 
 
 def mut_parameter(mut_vector, mut_P, mut_SD, mut_Min, mut_Max, index_Cheats,size_Pop):
@@ -54,10 +54,10 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
         if mix_Num > max_selection:
             max_selection = mix_Num
         mixing_numbers.append(1 / mix_Num)
-        indexes = [i] + [fastrand.pcg32bounded(size_Pop) for item in range(mix_Num-1)]
-        indexes = np.array(indexes, dtype=int)
+        # indexes = [i] + [fastrand.pcg32bounded(size_Pop) for item in range(mix_Num-1)]
+        # indexes = np.array(indexes, dtype=int)
         # bellow is faster but "less random"
-        # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
+        indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
         conbined_rates.append(np.mean(contribute.transpose()[indexes], axis=0))
         thresholds[i][range(mix_Num)] = sig_Th[indexes]
     thresholds = thresholds[:,:max_selection] 
