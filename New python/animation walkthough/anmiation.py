@@ -13,7 +13,7 @@ def graph_last_gen(file):
         for j in range(2):
             ax[i,j].clear()
 
-    file = f"New python\\animation walkthough\{file}.json"
+    file = f"New python\\animation walkthough\\{file}.json"
     with open(file, "r") as f:
         data = json.load(f)
     
@@ -43,8 +43,12 @@ def graph_last_gen(file):
     for i in range(binNo):
         counts.append(np.count_nonzero([fit_Pop[j] for j in range(5000) if i == bins[j]]))
         bincolor.append(scalarMap.to_rgba(np.mean([fit_Pop[j] for j in range(5000) if i == bins[j]])))
-    ax[1,0].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
-    ax[1,0].set_title("coopPayoff_Pop historgram")
+    if np.max(data[name])-np.min(data[name]) == 0:
+        ax[1,0].bar(x, counts, color= bincolor, width=.01)
+        ax[1,0].set_title("coopPayoff_Pop historgram")
+    else:
+        ax[1,0].bar(x, counts, color= bincolor, width=(np.max(data[name])-np.min(data[name]))/110)
+        ax[1,0].set_title("coopPayoff_Pop historgram")
 
     
     name = "sigCost_Pop"
@@ -119,12 +123,13 @@ if __name__ == "__main__":
     axfreq = fig.add_axes([0.25, 0.1, 0.65, 0.03])
     freq_slider = Slider(
         ax=axfreq,
-        label='Frequency [Hz]',
+        label='generation in hundres',
         valmin=1,
         valmax=25,
         valstep=1,
-        valinit=1,
+        valinit=1
     )
+
     
     plt.tight_layout()
     plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524, bottom=0.185)

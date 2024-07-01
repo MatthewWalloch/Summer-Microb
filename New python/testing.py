@@ -1,4 +1,5 @@
 import scipy
+import os
 import numpy as np
 
 def fitness_sum(c):
@@ -44,3 +45,8 @@ def fitness_sum(c):
 # print(res.fun)
 # print(res.success)
 # print(4.998*10**-6/(0.5e-08/10.0 ** -4))
+
+# for path, directories, files in os.walk("New python\json\\50 genotypes"):
+#         for file in files:
+#             # print(file.split("Sat")[0])
+#             os.rename("New python\json\\50 genotypes\\"+file, "New python\json\\50 genotypes\\"+file.split(" .json")[0]+".json")

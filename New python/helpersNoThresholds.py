@@ -105,9 +105,9 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         conbined_rates = np.average(pro_Rate[indexes]*sensitivity[indexes])
         contribute = conbined_rates / decay_Rate
         H_C_g_j = (env_CellDen * contribute)
-        cost_sum[i] =  H_C_g_j.dot(np.ones(grid_Size)) 
+        cost_sum[i] =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
         H_B_g_j = (H_C_g_j * env_CellDen) > np.full((grid_Size,), median_CellDen)      
-        benifit_sum[i] = H_B_g_j.dot(np.ones(grid_Size)) 
+        benifit_sum[i] = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
         signal_cost[i] = pro_Rate[i] * sig_Cost
     # signal_cost = pro_Rate * sig_Cost
     fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost

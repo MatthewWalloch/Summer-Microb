@@ -245,7 +245,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
             else:
                 coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
 
-        if g % 100 == 0:
+        if g % 500 == 0:
             print(f"{lam}: {g}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
             data = {"fit_Pop": fit_Pop.tolist(),
@@ -257,7 +257,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
                 "coopCost_Pop": coopCost_Pop.tolist(),
                 "auto_pro_Rate": auto_pro_Rate.tolist()}
             tgen = time.asctime().replace(":", "-" )
-            file = f"New python\json\\testing results\generation histograms\gen {g} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json"
+            file = f"New python\json\\50 genotypes\gen {g} {lam} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json"
             with open(file, "w") as f:
                 json.dump(data, f,  ensure_ascii=False, indent=4)
             # graphNoThresholds.graph_last_gen(file)
@@ -284,7 +284,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
             "coopCost_Pop": coopCost_Pop.tolist(),
             "auto_pro_Rate": auto_pro_Rate.tolist()}
     t = time.asctime().replace(":", "-" )
-    with open(f"New python\json\\testing results\last gen {t} {init_SN} {sig_Cost} {max_G} {clonal}.json", "w") as f:
+    with open(f"New python\json\\50 genotypes\gen {g+1} {lam} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json", "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
     return fit_Evo, pro_Rate_Evo, sensitivity_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
@@ -313,7 +313,7 @@ def vary_genotype(lam):
     Auto = False
     clonal = False
     # t = time.time_ns()
-    init_SN, sig_Cost, K, mu_Cheats, max_G = .2, 10**9, 50.0, 10.0 ** -4, 25000
+    init_SN, sig_Cost, K, mu_Cheats, max_G = .2, 10**9, 50.0, 10.0 ** -4, 5000
     returnValues = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     fit_Evo, pro_Rate_Evo, sensitivity_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = returnValues
     # print((time.time_ns()-t)* 10 **-9)
@@ -327,7 +327,7 @@ def vary_genotype(lam):
             "coopCost_Evo": coopCost_Evo.tolist(),
             "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
     t = time.asctime().replace(":", "-" )
-    file = f"New python\json\\testing results\{t} {init_SN} {sig_Cost} {max_G} {clonal}.json"
+    file = f"New python\json\\testing results\{t} {lam} {init_SN} {sig_Cost} {max_G} {clonal}.json"
     with open(file, "w") as f:
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
@@ -337,7 +337,7 @@ if __name__ == "__main__":
     # Auto = False
     # clonal = False
     # # t = time.time_ns()
-    # init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .2, 10**9, 10, 50.0, 10.0 ** -4, 25000
+    # init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .2, 10**9, 50, 50.0, 10.0 ** -4, 5000
     # returnValues = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     # fit_Evo, pro_Rate_Evo, sensitivity_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = returnValues
     # # print((time.time_ns()-t)* 10 **-9)
@@ -351,7 +351,7 @@ if __name__ == "__main__":
     #         "coopCost_Evo": coopCost_Evo.tolist(),
     #         "auto_pro_Rate_Evo": auto_pro_Rate_Evo.tolist()}
     # t = time.asctime().replace(":", "-" )
-    # file = f"New python\json\\testing results\{t} {init_SN} {sig_Cost} {max_G} {clonal}.json"
+    # file = f"New python\json\\testing results\{t} {init_SN} {lam} {sig_Cost} {max_G} {clonal}.json"
     # with open(file, "w") as f:
     #     json.dump(data, f,  ensure_ascii=False, indent=4)
     # graphNoThresholds.graph(file)
