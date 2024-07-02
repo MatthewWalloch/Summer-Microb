@@ -51,6 +51,7 @@ def eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop
 
     return benifit_sum, cost_sum, signal_cost, fitness
 
+
 def eval_genotype_No_Auto_All(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
     grid_Size,base_Volume,decay_Rate,median_CellDen):
@@ -102,12 +103,14 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         # bellow is faster but "less random"
         # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
 
-        conbined_rates = np.average(pro_Rate[indexes]*sensitivity[indexes])
+        conbined_rates = np.average(pro_Rate[indexes])
         contribute = conbined_rates / decay_Rate
-        H_C_g_j = (env_CellDen * contribute)
-        cost_sum[i] =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
-        H_B_g_j = (H_C_g_j * env_CellDen) > np.full((grid_Size,), median_CellDen)      
-        benifit_sum[i] = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+        contribute_matrix = np.full((mix_Num, grid_Size), contribute).transpose()
+        H_C_g_j = (sensitivity[indexes] * contribute_matrix)
+
+        cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
+        H_B_g_j = (env_CellDen * H_C_g_j.transpose()) > np.full((mix_Num,grid_Size), median_CellDen)
+        benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(mix_Num)) / mix_Num)) * coop_Benefit
         signal_cost[i] = pro_Rate[i] * sig_Cost
     # signal_cost = pro_Rate * sig_Cost
     fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
@@ -116,11 +119,66 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     return benifit_sum, cost_sum, signal_cost, fitness
 
 
+def eval_genotype_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,
+        pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+        grid_Size,base_Volume,decay_Rate,median_CellDen,K):
+
+    den_Matrix = np.full((size_Pop, grid_Size), env_CellDen).transpose()
+    npNPRku = (den_Matrix * pro_Rate*(1+auto_R)) - K*decay_Rate
+    contribute = 4*K*den_Matrix*pro_Rate*decay_Rate + (-1*npNPRku)**2
+    contribute = (npNPRku + contribute ** .5) / (2*decay_Rate)
+
+    H_C_g_j = (sensitivity * contribute ).transpose()
+    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
+    H_B_g_j = (H_C_g_j * env_CellDen) > np.full((size_Pop,grid_Size), median_CellDen)
+    benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    s_star = contribute.transpose().dot(np.ones(grid_Size)) / grid_Size
+    auto_pro_Rate = auto_R * (s_star / (K+s_star)) * pro_Rate
+    signal_cost = (pro_Rate + auto_pro_Rate) * sig_Cost 
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+    return benifit_sum, cost_sum, auto_pro_Rate, signal_cost, fitness
+
+
+def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,
+        pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+        grid_Size,base_Volume,decay_Rate,median_CellDen,K):
+
+    rng = np.random.default_rng()
+    benifit_sum = np.zeros(size_Pop)
+    cost_sum = np.zeros(size_Pop)
+    signal_cost = np.zeros(size_Pop)
+    for i in range(size_Pop):
+        mix_Num = sample_ztp(lam)
+        indexes = np.array(np.append([i], rng.integers(0, high=size_Pop, size=(mix_Num-1,))))
+        # bellow is faster but "less random"
+        # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
+        pro_Rate_env = pro_Rate[indexes]
+        auto_R_env = auto_R[indexes]
+        sensitivity_env = sensitivity[indexes]
+        den_Matrix = np.full((mix_Num, grid_Size), env_CellDen).transpose()
+        npNPRku = (den_Matrix * pro_Rate_env*(1+auto_R_env)) - K*decay_Rate
+        contribute = 4*K*den_Matrix*pro_Rate_env*decay_Rate + (-1*npNPRku)**2
+        contribute = (npNPRku + contribute ** .5) / (2*decay_Rate)
+        contribute = contribute.dot(np.ones(mix_Num)) / mix_Num
+        contribute_matrix = np.full((mix_Num, grid_Size), contribute).transpose()
+        H_C_g_j = (sensitivity_env * contribute_matrix)
+        cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
+        H_B_g_j = (env_CellDen * H_C_g_j.transpose()) > np.full((mix_Num,grid_Size), median_CellDen)
+        benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(mix_Num)) / mix_Num)) * coop_Benefit
+        s_star = contribute.transpose().dot(np.ones(grid_Size)) / grid_Size
+        auto_pro_Rate[i] = auto_R[i] * (s_star / (K+s_star)) * pro_Rate[i]
+        signal_cost[i] = (pro_Rate[i] + auto_pro_Rate[i]) * sig_Cost 
+
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+   
+    return benifit_sum, cost_sum, auto_pro_Rate, signal_cost, fitness
+
 
 # testing code:
 if __name__ == "__main__":
     rng = np.random.default_rng()
     print(rng.integers(0, high=10))
+    print(time.strftime("%d-%m %H-%M-%S"))
     # test = np.array([1,2,3])
     # test2 = np.array([4,5,6,7])
     # print(test / [1,2,3])

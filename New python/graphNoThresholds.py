@@ -53,9 +53,69 @@ def graph(filename):
 
     ax[3,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"])/  10.0 ** -4 )
     ax[3,0].set_title("S*p/u")
+    ax[3,0].plot(range(max_G), np.full((max_G,), 1.509*10**-5 ), color="#3fe61e", linewidth=2.0, linestyle="dashdot")
+    ax[3,0].plot(range(max_G), np.full((max_G,), .498*10**-5 ), color="black", linewidth=2.0, linestyle="dashdot")
+    
     plt.tight_layout()
     plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
     plt.show()
+
+
+def graph_auto(filename):
+    
+    with open(filename, "r") as f:
+        data = json.load(f)
+    fig, ax = plt.subplots(4,2)
+    max_G= len(data["fit_Evo"])
+    
+    # maximum cellular density (cells per microliter)
+    max_CellDen = 10.0 ** 5
+    # minimum cellular density
+    min_CellDen = 10.0 ** 1.5
+    grid_Size = 100
+    env_CellDen = np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size)))
+    cm = plt.get_cmap("plasma")
+    cNorm = colors.Normalize(vmin=min_CellDen, vmax= max_CellDen)
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
+    for j in env_CellDen:
+        ax[0,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"]) /  10.0 ** -4 * j ** 2, color=scalarMap.to_rgba(j)) # (10.0 ** 1.5)**2
+    ax[0,0].set_title("testing")
+    ax[0,0].plot(range(max_G), np.full((max_G,), 50016 ), color="black")
+
+    
+    ax[3,1].plot(range(max_G), data["fit_Evo"])
+    ax[3,1].set_title("fit_Evo")
+
+    ax[1,0].plot(range(max_G), data["pro_Rate_Evo"], color="blue")
+    ax[1,0].plot(range(max_G), np.array(data["auto_pro_Rate_Evo"])+np.array(data["pro_Rate_Evo"]) , color="red")
+    ax[1,0].set_title("Basil production(B) and total(R)")
+
+    ax[2,0].plot(range(max_G), data["sensitivity_Evo"])
+    ax[2,0].set_title("sensitivity_Evo")
+
+    ax[0,1].plot(range(max_G), data["coopPayoff_Evo"], color="blue")
+    ax[0,1].plot(range(max_G), data["coopCost_Evo"], color="red")
+    ax[0,1].set_title("coopPayoff_Evo(B)/coopCost_Evo(R)")
+
+    ax[1,1].plot(range(max_G), data["sigCost_Evo"])
+    ax[1,1].set_title("sigCost_Evo")
+
+    ax[2,1].plot(range(max_G), data["auto_R_Evo"])
+    ax[2,1].set_title("auto_R_Evo")
+
+    # ax[3,1].plot(range(max_G), np.array(data["auto_pro_Rate_Evo"])+np.array(data["pro_Rate_Evo"]))
+    # ax[3,1].set_title("total production")
+    ax[3,0].plot(range(max_G), np.full((max_G,), 1.509*10**-5 ), color="#3fe61e", linewidth=2.0, linestyle="dashdot")
+    ax[3,0].plot(range(max_G), np.full((max_G,), .498*10**-5 ), color="black", linewidth=2.0, linestyle="dashdot")
+    
+    ax[3,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"])/  10.0 ** -4 )
+    ax[3,0].set_title("S*p/u")
+
+    
+    plt.tight_layout()
+    plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
+    plt.show()
+
 
 def graph_multiple(split_value, folder_name, minimum, maximum, step):
     cm = plt.get_cmap("plasma")
@@ -233,8 +293,8 @@ def graph_last_gen(file):
 
 
 if __name__ == "__main__":
-    # file = "New python\json\\testing results\Thu Jun 27 15-27-32 2024 0.2 1000000000 25000 False.json"
-    graph(file)
+    file = "New python\\auto json\\1719860836745544100 50 0.2 1000000000 5000 True.json"
+    graph_auto(file)
     # graph_last_gen(file)
     # graph_multiple(5, "New python\json\\testing results\genotype", 0, 50, .5)
     
