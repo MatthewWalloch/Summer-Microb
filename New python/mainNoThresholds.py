@@ -256,7 +256,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
                 "sigCost_Pop": sigCost_Pop.tolist(),
                 "coopCost_Pop": coopCost_Pop.tolist(),
                 "auto_pro_Rate": auto_pro_Rate.tolist()}
-            tgen = time.asctime().replace(":", "-" )
+            tgen = time.strftime("%d-%m %H-%M-%S")
             if Auto:
                 file = f"New python\\auto json\\generations\gen {g+1} {lam} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json"
             else:
@@ -336,7 +336,7 @@ def vary_signal(sig_Cost, auto, clonal):
         json.dump(data, f,  ensure_ascii=False, indent=4)
 
 def vary_genotype(lam, Auto):
-    clonal = True
+    clonal = False
     # t = time.time_ns()
     init_SN, sig_Cost, K, mu_Cheats, max_G = .2, 10**9, 50.0, 10.0 ** -4, 5000
     returnValues = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
@@ -346,8 +346,8 @@ def vary_genotype(lam, Auto):
 
 if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
-    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(.5,50,step=1))
-    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(.5,50,step=1))
+    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,50,step=2))
+    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(0,50,step=2))
     # Auto = True
     # clonal = False
     # # t = time.time_ns()

@@ -294,9 +294,9 @@ def graph_last_gen(file):
 
 if __name__ == "__main__":
     file = "New python\\auto json\\1719860836745544100 50 0.2 1000000000 5000 True.json"
-    graph_auto(file)
+    # graph_auto(file)
     # graph_last_gen(file)
-    # graph_multiple(5, "New python\json\\testing results\genotype", 0, 50, .5)
+    graph_multiple(2, "New python\\auto json\\50 genotypes", 0, 50.1, .5)
     
 
 
