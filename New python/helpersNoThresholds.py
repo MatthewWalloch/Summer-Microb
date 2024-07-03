@@ -103,11 +103,11 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         # bellow is faster but "less random"
         # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
 
-        conbined_rates = np.average(pro_Rate[indexes])
-        contribute = conbined_rates / decay_Rate
-        contribute_matrix = np.full((mix_Num, grid_Size), contribute).transpose()
-        H_C_g_j = (sensitivity[indexes] * contribute_matrix)
+        conbined_rates = np.average(pro_Rate[indexes]) / decay_Rate
+        den_Matrix = np.full((mix_Num, grid_Size), env_CellDen).transpose()
 
+        contribute_matrix = conbined_rates * den_Matrix
+        H_C_g_j = (sensitivity[indexes] * contribute_matrix)
         cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
         H_B_g_j = (env_CellDen * H_C_g_j.transpose()) > np.full((mix_Num,grid_Size), median_CellDen)
         benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(mix_Num)) / mix_Num)) * coop_Benefit
@@ -165,7 +165,7 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
         cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
         H_B_g_j = (env_CellDen * H_C_g_j.transpose()) > np.full((mix_Num,grid_Size), median_CellDen)
         benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(mix_Num)) / mix_Num)) * coop_Benefit
-        s_star = contribute.transpose().dot(np.ones(grid_Size)) / grid_Size
+        s_star = contribute.transpose().dot(np.ones(grid_Size)) / grid_Size 
         auto_pro_Rate[i] = auto_R[i] * (s_star / (K+s_star)) * pro_Rate[i]
         signal_cost[i] = (pro_Rate[i] + auto_pro_Rate[i]) * sig_Cost 
 

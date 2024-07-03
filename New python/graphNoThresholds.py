@@ -292,11 +292,82 @@ def graph_last_gen(file):
     plt.show()
 
 
+def graph_multiple_auto(split_value, folder_name, minimum, maximum, step):
+    cm = plt.get_cmap("plasma")
+    cNorm = colors.Normalize(vmin=minimum, vmax= maximum)
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
+    fig, ax = plt.subplots(4,2)
+    max_G= 0
+    prod = []
+    threshold  = []
+    costs = []
+    
+    for path, directories, files in os.walk(folder_name):
+        for file in files:
+            try:
+                # cost = int(file.split(" ")[split_value])
+                cost = np.round(float(file.split(" ")[split_value]), decimals=1)
+                filename = path+"\\"+file
+                with open(filename, "r") as f:
+                    data = json.load(f)
+                max_G = len(data["fit_Evo"])
+                ax[0,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*(np.array(data["pro_Rate_Evo"])+ np.array(data["auto_pro_Rate_Evo"]))/  10.0 ** -4 , color=scalarMap.to_rgba(cost))
+                ax[0,0].set_title("testing")
+
+                ax[3,1].plot(range(max_G), data["fit_Evo"], color=scalarMap.to_rgba(cost))
+                ax[3,1].set_title("fit_Evo vs generation")
+
+                ax[2,0].plot(range(max_G), data["pro_Rate_Evo"], color=scalarMap.to_rgba(cost))
+                ax[2,0].set_title("pro_Rate_Evo vs generation")
+
+                ax[3,0].plot(range(max_G), data["sensitivity_Evo"], color=scalarMap.to_rgba(cost))
+                ax[3,0].set_title("sensitivity_Evo vs generation")
+
+                ax[0,1].plot(range(max_G), data["coopPayoff_Evo"], color=scalarMap.to_rgba(cost))
+                ax[0,1].set_title("coopPayoff_Evo vs generation")
+                
+                ax[1,1].plot(range(max_G), data["sigCost_Evo"], color=scalarMap.to_rgba(cost))
+                ax[1,1].set_title("sigCost_Evo vs generation")
+
+                ax[2,1].plot(range(max_G), data["coopCost_Evo"], color=scalarMap.to_rgba(cost))
+                ax[2,1].set_title("coopCost_Evo vs generation")
+
+                prod.append(np.mean(data["pro_Rate_Evo"][-50:]))
+                threshold.append(np.mean(data["sensitivity_Evo"][-50:]))
+                costs.append(cost)
+            except:
+                pass
+    # color="#3fe61e"
+    ax[0,0].plot(range(max_G), np.full((max_G,), 1.509*10**-5 ), color="#3fe61e", linewidth=2.0, linestyle="dashdot")
+    ax[0,0].plot(range(max_G), np.full((max_G,), .498*10**-5 ), color="black", linewidth=2.0, linestyle="dashdot")
+    
+    # ax[0,0].scatter(costs, prod,color="blue")
+
+    # another = ax[0,0].twinx()
+    # another.scatter(costs, threshold,color="red")
+    # ax[0,0].set_xlim([0,50])
+    # another.spines['right'].set_color('red')
+    # another.spines['left'].set_color('blue')
+    # ax[0,0].tick_params(axis="y", colors="blue")
+    # another.tick_params(axis="y", colors="red")
+    # ax[0,0].set_xlabel("Average genotype per group")
+    # ax[0,0].set_ylabel("Evolved production rate")
+    # another.set_ylabel("Evolved signal Threshold")
+    # ax[0,0].set_title("Evolved production rate (red) and Signal Threshold(red) vs genotype")
+
+    ax[1,0].scatter(prod, threshold, color= scalarMap.to_rgba(costs))
+    ax[1,0].set_xlabel("evolved production rate")
+    ax[1,0].set_ylabel("evolved siginaling threshold")
+
+    plt.colorbar(scalarMap, ax=ax[1,0])
+    plt.tight_layout()
+    plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
+    plt.show()
 if __name__ == "__main__":
-    file = "New python\\auto json\\1719860836745544100 50 0.2 1000000000 5000 True.json"
-    # graph_auto(file)
+    # file = "New python\json\\50 genotypes\gen 500 10 02-07 14-48-37 0.2 1000000000 1000 False.json"
+    # # graph_auto(file)
     # graph_last_gen(file)
-    graph_multiple(2, "New python\\auto json\\50 genotypes", 0, 50.1, .5)
+    graph_multiple_auto(2, "New python\\auto json\\50 genotypes", 0, 50, 1)
     
 
 
