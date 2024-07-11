@@ -364,10 +364,10 @@ def graph_multiple_auto(split_value, folder_name, minimum, maximum, step):
     plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
     plt.show()
 if __name__ == "__main__":
-    # file = "New python\json\\50 genotypes\gen 500 10 02-07 14-48-37 0.2 1000000000 1000 False.json"
-    # # graph_auto(file)
+    file = "New python\\auto json\\1719860836745544100 50 0.2 1000000000 5000 True.json"
+    graph_auto(file)
     # graph_last_gen(file)
-    graph_multiple_auto(2, "New python\\auto json\\50 genotypes", 0, 50, 1)
+    # graph_multiple(2, "New python\json\\actuall 50 genotype evo", 0, 10, .5)
     
 
 

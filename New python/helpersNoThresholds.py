@@ -110,6 +110,7 @@ def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
         H_C_g_j = (sensitivity[indexes] * contribute_matrix)
         cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
         H_B_g_j = (env_CellDen * H_C_g_j.transpose()) > np.full((mix_Num,grid_Size), median_CellDen)
+        # H_B_g_j = (env_CellDen * H_C_g_j.transpose() - 10**1.5) / (10**5-10**1.5)
         benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(mix_Num)) / mix_Num)) * coop_Benefit
         signal_cost[i] = pro_Rate[i] * sig_Cost
     # signal_cost = pro_Rate * sig_Cost

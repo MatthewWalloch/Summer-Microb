@@ -65,7 +65,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
     # initial cellular production rate
     init_pro_Rate = 0.5e-08 
     # SD for mutation of cellular production rate
-    mu_SD_ProRate = 0.01e-08
+    mu_SD_ProRate = 0.03e-08
 
     # maximum signal concentration
     max_sensitivity = 20
@@ -263,7 +263,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
                 file = f"New python\\json\\50 genotypes\gen {g+1} {lam} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json"
             with open(file, "w") as f:
                 json.dump(data, f,  ensure_ascii=False, indent=4)
-            graphNoThresholds.graph_last_gen(file)
+            # graphNoThresholds.graph_last_gen(file)
             # graphNoThresholds.graph_last_gen(file)
 
 
@@ -347,11 +347,11 @@ def vary_genotype(lam, Auto):
 
 if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
-    # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,50,step=1))
+    # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(0,10,step=.5))
-    Auto = False
+    Auto = True
     clonal = False
     # t = time.time_ns()
-    init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .2, 10**9, 20, 50.0, 10.0 ** -4, 5000
+    init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .5, 10**8, 3, 50.0, 10.0 ** -4, 5000
     file = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     graphNoThresholds.graph(file)
