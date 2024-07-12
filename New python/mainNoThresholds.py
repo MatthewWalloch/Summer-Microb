@@ -339,6 +339,7 @@ def vary_genotype(lam, Auto):
     clonal = False
     # t = time.time_ns()
     init_SN, sig_Cost, K, mu_Cheats, max_G = .2, 10**9, 50.0, 10.0 ** -4, 5000
+    print(f"Lam: {lam} | auto: {Auto} | clonal: {clonal}")
     returnValues = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     # fit_Evo, pro_Rate_Evo, sensitivity_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = returnValues
     # print((time.time_ns()-t)* 10 **-9)
@@ -346,8 +347,8 @@ def vary_genotype(lam, Auto):
 
 if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
-    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,50,step=2))
-    joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(0,50,step=2))
+    joblib.Parallel(n_jobs=10)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,50,step=2))
+    joblib.Parallel(n_jobs=10)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(0,50,step=2))
     # Auto = True
     # clonal = False
     # # t = time.time_ns()
