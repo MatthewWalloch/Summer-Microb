@@ -13,7 +13,7 @@ def graph_last_gen(file):
         for j in range(2):
             ax[i,j].clear()
 
-    file = f"New python\json\\50 genotypes\gen {file*100} 49.0.json"
+    file = f"New python\\auto json\generations\gen {file*100} 10.json"
     with open(file, "r") as f:
         data = json.load(f)
     
@@ -124,10 +124,10 @@ if __name__ == "__main__":
     freq_slider = Slider(
         ax=axfreq,
         label='generation in hundres',
-        valmin=5,
-        valmax=50,
-        valstep=5,
-        valinit=5
+        valmin=1,
+        valmax=10,
+        valstep=1,
+        valinit=1
     )
 
     

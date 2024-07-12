@@ -3,6 +3,7 @@ import time
 from helpers import *
 import matplotlib.pyplot as plt
 import json
+import graph
 import joblib
 
 def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal=True):
@@ -149,7 +150,7 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clon
         if clonal:
             coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         else:
-            coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
    
     g = 0
     numCheats_Evo[g] = np.sum(index_Cheats)
@@ -272,11 +273,28 @@ def main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clon
             if clonal:
                 coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
             else:
-                coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sig_Th,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
+                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sig_Th,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
 
-        if g % 500 == 0:
+        if g in [250, 500, 750, 1000, 1500, 2000, 3000, 4750]:
             print(f"{lam}: {g}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
+            data = {"fit_Pop": fit_Pop.tolist(),
+                "pro_Rate": pro_Rate.tolist(),
+                "sig_Th": sig_Th.tolist(),
+                "auto_R": auto_R.tolist(),
+                "coopPayoff_Pop": coopPayoff_Pop.tolist(),
+                "sigCost_Pop": sigCost_Pop.tolist(),
+                "coopCost_Pop": coopCost_Pop.tolist(),
+                "auto_pro_Rate": auto_pro_Rate.tolist()}
+            tgen = time.strftime("%d-%m %H-%M-%S")
+            if Auto:
+                file = f"Wang python\json\gen {g} {lam} {tgen} {sig_Cost} {max_G} {clonal} {Auto}.json"
+            else:
+                file = f"Wang python\json\gen {g} {lam} {tgen} {sig_Cost} {max_G} {clonal} {Auto}.json"
+            with open(file, "w") as f:
+                json.dump(data, f,  ensure_ascii=False, indent=4)
+            # graph.graph_last_gen(file)
+            
 
     return fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo
 
@@ -288,6 +306,7 @@ def vary_signal(sig_Cost, auto, clonal):
     returnValues = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=auto, clonal=clonal)
     fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = returnValues
     # print((time.time_ns()-t)* 10 **-9)
+
     print(f'{sig_Cost // 10 ** 8} done') 
     data = {"fit_Evo": fit_Evo.tolist(),
             "pro_Rate_Evo": pro_Rate_Evo.tolist(),
@@ -321,14 +340,14 @@ def vary_genotype(lam, auto, clonal):
 
 if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
-    joblib.Parallel(n_jobs=10)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True, False) for lam in np.arange(7.1,10,step=.1))
+    joblib.Parallel(n_jobs=2)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True, False) for lam in [2.5,7])
     # Auto = True
-    # clonal = False
-    # # t = time.time_ns()
-    # coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 10**9, 4, 50.0, 10.0 ** -4, 5000
+    # clonal = True
+    # t = time.time_ns()
+    # coop_Cost, sig_Cost, lam, K, mu_Cheats, max_G = 0.5, 60* 10**8, 4, 50.0, 10.0 ** -4, 5000
     # returnValues = main_QS(coop_Cost, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     # fit_Evo, pro_Rate_Evo, sig_Th_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = returnValues
-    # # print((time.time_ns()-t)* 10 **-9)
+    # print((time.time_ns()-t)* 10 **-9)
     # print(f'{sig_Cost // 10 ** 8} done') 
     # data = {"fit_Evo": fit_Evo.tolist(),
     #         "pro_Rate_Evo": pro_Rate_Evo.tolist(),
