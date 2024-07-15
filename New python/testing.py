@@ -78,10 +78,14 @@ def fitness_auto(p,r, s):
 # print(res.success)
 # print(4.998*10**-6/(0.5e-08/10.0 ** -4))
 
-# for path, directories, files in os.walk("New python\json\\50 genotypes"):
+# for path, directories, files in os.walk("New python\\auto json\generations for 10"):
 #         for file in files:
 #             # print(file.split("Sat")[0])
-#             os.rename("New python\json\\50 genotypes\\"+file, "New python\json\\50 genotypes\\"+file.split(" .json")[0]+".json")
+
+#             if file.split(" ")[3] == "11-07":
+#                 os.rename("New python\\auto json\generations for 10\\"+file, "New python\\auto json\generations for 10\\"+file.split(" 11-07")[0]+".json")
+#             if file.split(" ")[3] == "12-07":
+#                 os.rename("New python\\auto json\generations for 10\\"+file, "New python\\auto json\generations for 10\\"+file.split(" 12-07")[0]+".json")
 
 def optimum(p,r,s):
     a =  1.00450376e+03 * np.exp(-5.04190644e-02 / s) - 1.00444712e+03
@@ -118,7 +122,7 @@ def plot_no_change():
     plt.show()
 
 
-plot_no_change()
+# plot_no_change()
 # s= "8.88888888888889"
 # s= "4.040404040404041"
 # s= "1.8181818181818181"

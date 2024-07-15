@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
+import matplotlib
 import json
 import os
 import numpy as np
@@ -377,7 +378,8 @@ def graph_last_gen_standard(file):
     ax[2].set_title("Production Rate vs. Signaling Threshold")
     ax[2].set_xlabel("Production Rate $\left(\\frac{\mu M}{s}\\right)$")
     ax[2].set_ylabel("Signaling Threshold $\left(\mu M\\right)$")
-    
+
+
     fig.suptitle(f"Generation {generation}", fontsize = 20)
     # ax[2],plot()
    
@@ -496,10 +498,14 @@ if __name__ == "__main__":
     plt.rcParams["savefig.directory"]  = "Pictures"
     # graph("Wang python\json\Mon Jun 24 11-53-59 2024 0.5 1000000000 4 0.0001 True 5000.json")
     # graph_multiple_standard1(7, "Wang python\json\genotype with auto",0, 10, .1)
-    for path, directories, files in os.walk("Wang python\json\\7 evo"):
-        for file in files:
-            graph_last_gen_standard(path+"\\"+file)
+    # for path, directories, files in os.walk("Wang python\json\\7 evo"):
+    #     for file in files:
+    #         graph_last_gen_standard(path+"\\"+file)
     # graph_last_gen_standard("Wang python\json\gen 1500 7 09-07 15-14-41 1000000000 5000 False False.json")
     # graph_last_gen_standard("Wang python\json\gen 2000 7 09-07 15-17-27 1000000000 5000 False False.json")
     # graph_last_gen_standard("Wang python\json\gen 2500 7 09-07 15-20-03 1000000000 5000 False False.json")
     # graph_last_gen_standard("Wang python\json\gen 3000 7 09-07 15-22-40 1000000000 5000 False False.json")
+
+    flist = matplotlib.font_manager._get_fontconfig_fonts()
+    names = [matplotlib.font_manager.FontProperties(fname=fname).get_name() for fname in flist]
+    print(names)
