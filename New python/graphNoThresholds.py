@@ -386,7 +386,7 @@ def graph_last_gen_standard(file, lam, gen):
     fig, ax = plt.subplots(1,2, figsize=(18, 6))
     binNo = 50
     fit_Pop = data["fit_Pop"]
-    cm = plt.get_cmap("plasma")
+    cm = plt.get_cmap("winter")
     q1, mead, q3 = np.quantile(fit_Pop, [.25,.5,.75])
     cNorm = colors.CenteredNorm(vcenter=mead, halfrange=(q3-q1))
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
@@ -447,8 +447,12 @@ def graph_last_gen_standard(file, lam, gen):
     # ax[2].plot(x, , color="black", linewidth = 2,  linestyle="dashed", )
     ax[1].plot(x, 10**-4 * 1.62*10**-5 / x , color="black", linewidth=2.0, linestyle="dashdot")
     ax[1].plot(x, 10**-4 * .4992*10**-5 / x, color="black", linewidth=2.0, linestyle="dashed")
-    ax[1].set_xlim([0, 23 * 10 **-9])
-    ax[1].set_ylim([0, .75])
+    if auto:
+        ax[1].set_xlim([0, 23 * 10 **-9])
+        ax[1].set_ylim([0, .3])
+    else:
+        ax[1].set_xlim([0, 9 * 10 **-9])
+        ax[1].set_ylim([0, .75])
     fig.suptitle(f"Generation {generation}", fontsize = fs)
     # 
    
@@ -512,13 +516,13 @@ def graph_multiple_standard1(split_value, folder_name, minimum, maximum, step):
     ax[1].set_xlabel("Generation", fontsize=fs)
     ax[1].set_ylabel('Production Rate $\left(\\frac{\mu M}{s}\\right)$', fontsize=fs)
 
-    ax[2].set_title("Signaling Threshold Evolution", fontsize=fs)
+    ax[2].set_title("Sensitivity Evolution", fontsize=fs)
     ax[2].set_xlabel("Generation", fontsize=fs)
-    ax[2].set_ylabel('Signaling Threshold $\left(\mu M\\right)$', fontsize=fs)
+    ax[2].set_ylabel('Sensitivity', fontsize=fs)
 
     plt.tight_layout()
     plt.subplots_adjust(left= .05, wspace=0.162, hspace=.524)
-    plt.show()
+    plt.savefig(f"Pictures\\No Auto genotype 1.png")
 
 def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
     fig, ax = plt.subplots(1,3, figsize=(25, 6))
@@ -530,6 +534,8 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
     totalprod =[]
     threshold  = []
     splitname = ""
+    splitname = "Number of Genotypes per Testing Environment"
+    # fig.suptitle("Genetic Mixing", fontsize= 20)
     if split_value == 6:
         splitname = "Cost of Signaling $(10^8 FU)$"
         fig.suptitle("Variation of Cost of Singaling", fontsize= 20)
@@ -537,7 +543,7 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
         splitname = "Number of Genotypes per Testing Environment"
         fig.suptitle("Genetic Mixing", fontsize= 20)
     costs = []
-    
+    fs = 30
     for path, directories, files in os.walk(folder_name):
         for file in files:
             # cost = int(file.split(" ")[split_value])
@@ -547,29 +553,33 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
                 data = json.load(f)
             max_G = len(data["fit_Evo"])
            
-            
+            p = np.array(data["pro_Rate_Evo"])
+            r = np.array(data["auto_pro_Rate_Evo"])
+            s = np.array(data["sensitivity_Evo"])
 
-            ax[0].plot(range(max_G), data["fit_Evo"], color=scalarMap.to_rgba(cost))
-            ax[1].plot(range(max_G), data["coopPayoff_Evo"], color=scalarMap.to_rgba(cost))
-            ax[2].plot(range(max_G), data["coopCost_Evo"], color=scalarMap.to_rgba(cost))
+            ax[0].plot(range(max_G), np.array(data["sensitivity_Evo"])*(p+ r) /  10.0 ** -4, color=scalarMap.to_rgba(cost))
 
+            # ax[0].plot(range(max_G), s * 10 **-4 / (p+r), color=scalarMap.to_rgba(cost))
+            ax[1].plot(range(max_G), p+r, color=scalarMap.to_rgba(cost))
+            ax[2].plot(range(max_G), data["sensitivity_Evo"], color=scalarMap.to_rgba(cost))
     plt.colorbar(scalarMap, ax=ax[0], label= splitname)
+    ax[0].plot(range(max_G), np.full((max_G,), 1.62*10**-5 ), color="black", linewidth=2.0, linestyle="dashdot")
+    ax[0].plot(range(max_G), np.full((max_G,), .4992*10**-5 ), color="black", linewidth=2.0, linestyle="dashed")
+    ax[0].set_title("$\\frac{Sn_i p_{total}}{u}$ Evolution", fontsize=fs)
+    ax[0].set_xlabel("Generation", fontsize=fs)
+    ax[0].set_ylabel('$\\frac{Sn_i p_{total}}{u}$  $\left(\mu L\\right)$', fontsize=fs)
 
-    ax[0].set_title("Fitness Evolution")
-    ax[0].set_xlabel("Generation")
-    ax[0].set_ylabel('Fitness (FU)')
+    ax[1].set_title("Total Production Rate Evolution", fontsize=fs)
+    ax[1].set_xlabel("Generation", fontsize=fs)
+    ax[1].set_ylabel('Production Rate $\left(\\frac{\mu M}{s}\\right)$', fontsize=fs)
 
-    ax[1].set_title("Cooperation Payoff Evolution")
-    ax[1].set_xlabel("Generation")
-    ax[1].set_ylabel('Cooperation Payoff (FU)')
-
-    ax[2].set_title("Cooperation Cost Evolution")
-    ax[2].set_xlabel("Generation")
-    ax[2].set_ylabel('Cooperation Cost (FU)')
+    ax[2].set_title("Sensitivity Evolution", fontsize=fs)
+    ax[2].set_xlabel("Generation", fontsize=fs)
+    ax[2].set_ylabel('Sensitivity', fontsize=fs)
 
     plt.tight_layout()
     plt.subplots_adjust(left= .05, wspace=0.162, hspace=.524)
-    plt.show()
+    plt.savefig(f"Pictures\\Auto genotype 1.png")
 
 
 if __name__ == "__main__":
@@ -604,11 +614,12 @@ if __name__ == "__main__":
     # lam=""
     # gen=5000
     # graph_last_gen_standard(f"New python\\json\\clonal gen\\gen {gen}.json", lam, gen)
-    # graph_multiple_standard1(2,"New python\\auto json\\10 geno", 0, 10, .1)
+    graph_multiple_standard2(2,"New python\\auto json\\10 geno", 0, 10, .1)
+    graph_multiple_standard1(2,"New python\json\\10 genotypes", 0, 10, .1)
     
-    for gen in [250,750,1000,5000]:
-        graph_last_gen_standard(f"New python\\json\\clonal gen\\gen {gen}.json", "0", gen)
-        # graph_last_gen_standard(f"New python\\json\\generations for 10\\gen {gen} 6.0.json", "6.0", gen)
+    # for gen in [250,750,1000,5000]:
+    #     graph_last_gen_standard(f"New python\\json\\clonal gen\\gen {gen}.json", "0", gen)
+    #     graph_last_gen_standard(f"New python\\json\\generations for 10\\gen {gen} 6.0.json", "6.0", gen)
     
     # for gen in [250,1250,1500,5000]:
         

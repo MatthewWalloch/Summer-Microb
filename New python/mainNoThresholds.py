@@ -245,7 +245,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
             else:
                 coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
 
-        if g % 250 == 249:
+        if g in [259, 749, 999, 4999]:
             print(f"{lam}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
             if lam in [1,3,6,9]:
