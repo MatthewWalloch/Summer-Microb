@@ -111,7 +111,7 @@ def plot_no_change():
             # z2.append(optimum(p,r,2))
             # z2.append(optimum(p,r,10))
     cm = plt.get_cmap("plasma_r")
-    cNorm = colors.Normalize(vmin=np.min(z2), vmax= np.max(z2))
+    cNorm = colors.Normalize(vmin=-1, vmax= .001)
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
     ax.scatter(x,y,z, color=scalarMap.to_rgba(z2))
     # ax.scatter(x,y,z2, color=scalarMap.to_rgba(z2))
