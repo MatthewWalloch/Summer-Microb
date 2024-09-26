@@ -37,13 +37,13 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
 
     # mutation rate
 
-    mu_Production = 0.01
-    mu_sensitiity = 0.01
-    mu_R = 0.01
-    # print("mutation rates increased for testing")
-    # mu_Production = 0.1
-    # mu_sensitiity = 0.1
-    # mu_R = 0.1
+    # mu_Production = 0.01
+    # mu_sensitiity = 0.01
+    # mu_R = 0.01
+    print("mutation rates increased for testing")
+    mu_Production = 0.1
+    mu_sensitiity = 0.1
+    mu_R = 0.1
 
     # maximum cellular density (cells per microliter)
     max_CellDen = 10.0 ** 5
@@ -128,10 +128,13 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
 
     # record cheats
     numCheats_Evo =  np.zeros(max_G)
+    rng = np.random.default_rng()
+    randlist= [rng.integers(0, high=size_Pop, size=(lam-1)) for i in range(5000)]
     ################################################################################
     # Evolution
     ################################################################################
     # initial evaluation
+    
     if Auto:
         if clonal:
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
@@ -139,9 +142,12 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
     else:
         if clonal:
-            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         else:
-            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
+            # coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
+
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen, randlist)  
+
    
     g = 0
     numCheats_Evo[g] = np.sum(index_Cheats)
@@ -241,62 +247,40 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
                 coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
         else:
             if clonal:
-                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
             else:
-                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
+                # coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
 
-        if g in [259, 749, 999, 4999]:
+                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen, randlist)  
+
+
+        # if g in [259, 749, 999, 4999]:
+        #     print(f"{lam}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
+        #     t = time.time_ns()
+        #     if lam in [1,3,6,9]:
+        #         data = {"fit_Pop": fit_Pop.tolist(),
+        #             "pro_Rate": pro_Rate.tolist(),
+        #             "sensitivity": sensitivity.tolist(),
+        #             "auto_R": auto_R.tolist(),
+        #             "coopPayoff_Pop": coopPayoff_Pop.tolist(),
+        #             "sigCost_Pop": sigCost_Pop.tolist(),
+        #             "coopCost_Pop": coopCost_Pop.tolist(),
+        #             "auto_pro_Rate": auto_pro_Rate.tolist()}
+        #         tgen = time.strftime("%d-%m %H-%M-%S")
+        #         if Auto:
+        #             file = f"New python\\auto json\clonal gen\gen {g+1}.json"
+        #         else:
+        #             file = f"New python\json\clonal gen\gen {g+1}.json"
+        #         with open(file, "w") as f:
+        #             json.dump(data, f,  ensure_ascii=False, indent=4)
+        #     # graphNoThresholds.graph_last_gen(file)
+        #     # graphNoThresholds.graph_last_gen(file)
+
+
+        if g % 500 == 0:
             print(f"{lam}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
-            if lam in [1,3,6,9]:
-                data = {"fit_Pop": fit_Pop.tolist(),
-                    "pro_Rate": pro_Rate.tolist(),
-                    "sensitivity": sensitivity.tolist(),
-                    "auto_R": auto_R.tolist(),
-                    "coopPayoff_Pop": coopPayoff_Pop.tolist(),
-                    "sigCost_Pop": sigCost_Pop.tolist(),
-                    "coopCost_Pop": coopCost_Pop.tolist(),
-                    "auto_pro_Rate": auto_pro_Rate.tolist()}
-                tgen = time.strftime("%d-%m %H-%M-%S")
-                if Auto:
-                    file = f"New python\\auto json\clonal gen\gen {g+1}.json"
-                else:
-                    file = f"New python\json\clonal gen\gen {g+1}.json"
-                with open(file, "w") as f:
-                    json.dump(data, f,  ensure_ascii=False, indent=4)
-            # graphNoThresholds.graph_last_gen(file)
-            # graphNoThresholds.graph_last_gen(file)
-
-
-        # if g == 1000:
-        #     data = {"fit_Pop": fit_Pop.tolist(),
-        #         "pro_Rate": pro_Rate.tolist(),
-        #         "sensitivity": sensitivity.tolist(),
-        #         "auto_R": auto_R.tolist(),
-        #         "coopPayoff_Pop": coopPayoff_Pop.tolist(),
-        #         "sigCost_Pop": sigCost_Pop.tolist(),
-        #         "coopCost_Pop": coopCost_Pop.tolist(),
-        #         "auto_pro_Rate": auto_pro_Rate.tolist()}
-        #     tgen = time.asctime().replace(":", "-" )
-        #     with open(f"New python\json\\testing results\gen {g} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json", "w") as f:
-        #         json.dump(data, f,  ensure_ascii=False, indent=4)
-    # data = {"fit_Pop": fit_Pop.tolist(),
-    #         "pro_Rate": pro_Rate.tolist(),
-    #         "sensitivity": sensitivity.tolist(),
-    #         "auto_R": auto_R.tolist(),
-    #         "coopPayoff_Pop": coopPayoff_Pop.tolist(),
-    #         "sigCost_Pop": sigCost_Pop.tolist(),
-    #         "coopCost_Pop": coopCost_Pop.tolist(),
-    #         "auto_pro_Rate": auto_pro_Rate.tolist()}
-    # t = time.asctime().replace(":", "-" )
-    # if Auto:
-    #     file = f"New python\\auto json\\50 genotypes\gen {g+1} {lam} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json"
-    # else:
-    #     file = f"New python\json\\50 genotypes\gen {g+1} {lam} {tgen} {init_SN} {sig_Cost} {max_G} {clonal}.json"
-            
-    # with open(file , "w") as f:
-    #     json.dump(data, f,  ensure_ascii=False, indent=4)
-    timestr = time.strftime("%d-%m %H-%M-%S")
+        timestr = time.strftime("%d-%m %H-%M-%S")
     if Auto:
         file = f"New python\\auto json\\{timestr} {lam} {init_SN} {sig_Cost} {max_G} {clonal}.json"
     else:
@@ -351,8 +335,8 @@ if __name__ == "__main__":
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(0,10,step=.1))
     Auto = False
-    clonal = True
+    clonal = False
     # t = time.time_ns()
-    init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .2, 10**9, 3, 50.0, 10.0 ** -4, 5000
+    init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .2, 10**9, 1, 50.0, 10.0 ** -4, 5000
     file = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     # graphNoThresholds.graph(file)

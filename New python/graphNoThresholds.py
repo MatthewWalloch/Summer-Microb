@@ -583,7 +583,7 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
 
 
 if __name__ == "__main__":
-    file = "New python\\auto json\\1719860836745544100 50 0.2 1000000000 5000 True.json"
+    file = "New python\json\\25-09 14-27-54 3 0.2 1000000000 5000 True.json"
     plt.rcParams["savefig.directory"]  = "Pictures"
     font_path = 'Inter-Regular.otf'  # Your font path goes here
     font_manager.fontManager.addfont("C:\\Users\\matth\\Downloads\\Lato\\Lato-Regular.ttf")
@@ -593,7 +593,7 @@ if __name__ == "__main__":
         'size'   : 15}
     # print(matplotlib.font_manager.get_font_names())
     matplotlib.rc('font', **font)
-    # graph_auto(file)
+    graph(file)
     # graph_last_gen(file)
     # graph_multiple(2, "New python\json\\actuall 50 genotype evo", 0, 10, .5)
     # fig, ax = plt.subplots(1, figsize=(8, 6))
@@ -614,8 +614,8 @@ if __name__ == "__main__":
     # lam=""
     # gen=5000
     # graph_last_gen_standard(f"New python\\json\\clonal gen\\gen {gen}.json", lam, gen)
-    graph_multiple_standard2(2,"New python\\auto json\\10 geno", 0, 10, .1)
-    graph_multiple_standard1(2,"New python\json\\10 genotypes", 0, 10, .1)
+    # graph_multiple_standard2(2,"New python\\auto json\\10 geno", 0, 10, .1)
+    # graph_multiple_standard1(2,"New python\json\\10 genotypes", 0, 10, .1)
     
     # for gen in [250,750,1000,5000]:
     #     graph_last_gen_standard(f"New python\\json\\clonal gen\\gen {gen}.json", "0", gen)

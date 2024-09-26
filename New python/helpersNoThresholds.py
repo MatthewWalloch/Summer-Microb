@@ -174,6 +174,86 @@ def eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_
    
     return benifit_sum, cost_sum, auto_pro_Rate, signal_cost, fitness
 
+def eval_genotype_No_Auto_Psuedo_Rand(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
+    pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen, randlist):   
+        
+    # conbined_rates = np.array(joblib.Parallel(n_jobs= 4)(joblib.delayed(random_parallel)( i, rng, lam, size_Pop, pro_Rate, sensitivity, env_CellDen, grid_Size, median_CellDen, decay_Rate) for i in range(size_Pop)))
+
+    benifit_sum = np.zeros(size_Pop)
+    cost_sum = np.zeros(size_Pop)
+    signal_cost = np.zeros(size_Pop)
+    for i in range(size_Pop):
+        indexes = np.array(np.append([i], randlist[i]))
+        # bellow is faster but "less random"
+        # indexes = np.array(np.append([i], random.choices(all_index, k=mix_Num-1)), dtype=int)
+    
+        conbined_rates = np.average(pro_Rate[indexes]) / decay_Rate
+        den_Matrix = np.full((lam, grid_Size), env_CellDen).transpose()
+
+        contribute_matrix = conbined_rates * den_Matrix
+        H_C_g_j = (sensitivity[indexes] * contribute_matrix)
+        cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
+        H_B_g_j = (env_CellDen * H_C_g_j.transpose()) > np.full((lam,grid_Size), median_CellDen)
+        # H_B_g_j = (env_CellDen * H_C_g_j.transpose() - 10**1.5) / (10**5-10**1.5)
+        benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(lam)) / lam)) * coop_Benefit
+        signal_cost[i] = pro_Rate[i] * sig_Cost
+    # signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+
+
+    return benifit_sum, cost_sum, signal_cost, fitness
+
+
+def eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
+    pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen):
+
+    contribute = pro_Rate / decay_Rate 
+    contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
+    den_Matrix = np.full((grid_Size, grid_Size), env_CellDen)
+
+    H_C_g_j = sensitivity * (env_CellDen * contribute_Matrix).transpose() 
+    H_C_g_j = H_C_g_j.transpose()
+    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
+    H_B_g_j = .5 * np.log((H_C_g_j * env_CellDen) / median_CellDen + 1)
+    benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
+    signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+
+    return benifit_sum, cost_sum, signal_cost, fitness
+
+def eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
+    pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
+    grid_Size,base_Volume,decay_Rate,median_CellDen, randlist):   
+        
+    # conbined_rates = np.array(joblib.Parallel(n_jobs= 4)(joblib.delayed(random_parallel)( i, rng, lam, size_Pop, pro_Rate, sensitivity, env_CellDen, grid_Size, median_CellDen, decay_Rate) for i in range(size_Pop)))
+
+    benifit_sum = np.zeros(size_Pop)
+    cost_sum = np.zeros(size_Pop)
+    signal_cost = np.zeros(size_Pop)
+    for i in range(size_Pop):
+        indexes = np.array(np.append([i], randlist[i]))
+        
+        conbined_rates = np.average(pro_Rate[indexes]) / decay_Rate
+        den_Matrix = np.full((lam, grid_Size), env_CellDen).transpose()
+
+        contribute_matrix = conbined_rates * den_Matrix
+        H_C_g_j = (sensitivity[indexes] * contribute_matrix)
+        cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
+
+        #.5 * np.log((H_C_g_j * env_CellDen) / median_CellDen + 1)
+        H_B_g_j =.5*np.log( (env_CellDen * H_C_g_j.transpose())/ median_CellDen + 1)
+        # print(1 *H_B_g_j)
+        # H_B_g_j = (env_CellDen * H_C_g_j.transpose() - 10**1.5) / (10**5-10**1.5)
+        benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(lam)) / lam)) * coop_Benefit
+        signal_cost[i] = pro_Rate[i] * sig_Cost
+    # signal_cost = pro_Rate * sig_Cost
+    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
+
+
+    return benifit_sum, cost_sum, signal_cost, fitness
+
 
 # testing code:
 if __name__ == "__main__":
