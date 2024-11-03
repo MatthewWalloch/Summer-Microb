@@ -65,7 +65,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
     # initial cellular production rate
     init_pro_Rate = 0.5e-08 
     # SD for mutation of cellular production rate
-    mu_SD_ProRate = 0.03e-08
+    mu_SD_ProRate = 0.01e-08
 
     # maximum signal concentration
     max_sensitivity = 20
@@ -128,13 +128,10 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
 
     # record cheats
     numCheats_Evo =  np.zeros(max_G)
-    rng = np.random.default_rng()
-    randlist= [rng.integers(0, high=size_Pop, size=(lam-1)) for i in range(5000)]
     ################################################################################
     # Evolution
     ################################################################################
     # initial evaluation
-    
     if Auto:
         if clonal:
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)
@@ -142,12 +139,9 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
             coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
     else:
         if clonal:
-            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
         else:
-            # coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
-
-            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen, randlist)  
-
+            coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
    
     g = 0
     numCheats_Evo[g] = np.sum(index_Cheats)
@@ -247,9 +241,9 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
                 coopPayoff_Pop, coopCost_Pop, auto_pro_Rate, sigCost_Pop, fit_Pop = eval_genotype_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,auto_pro_Rate,pro_Rate,sensitivity,auto_R,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen,K)  
         else:
             if clonal:
-                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
+                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)
             else:
-                # coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
+                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
 
                 coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen, randlist)  
 

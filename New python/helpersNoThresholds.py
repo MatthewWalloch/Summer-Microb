@@ -2,7 +2,7 @@ import numpy as np
 import time 
 import joblib
 import random
-import fastrand
+
 
 
 def mut_parameter(mut_vector, mut_P, mut_SD, mut_Min, mut_Max, index_Cheats,size_Pop):
