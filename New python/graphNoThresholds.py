@@ -196,14 +196,14 @@ def graph_last_gen(file):
     
     with open(file, "r") as f:
         data = json.load(f)
-    fig, ax = plt.subplots(4,2)
+    fig, ax = plt.subplots(4,2, figsize=(18, 6))
     binNo = 100
     fit_Pop = data["fit_Pop"]
     cm = plt.get_cmap("plasma")
     q1, mead, q3 = np.quantile(fit_Pop, [.25,.5,.75])
     cNorm = colors.CenteredNorm(vcenter=mead, halfrange=(q3-q1))
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
-
+    fig.suptitle(file.split("\\")[3].split(".")[0])
     name = "fit_Pop"
     bins = np.digitize(data[name], bins=np.histogram_bin_edges(data[name],bins=binNo))
     bincolor= []
@@ -272,7 +272,7 @@ def graph_last_gen(file):
     ax[1,1].set_title("sensitivity historgram")
 
 
-    ax[2,1].scatter(data["pro_Rate"], data["sensitivity"],color=scalarMap.to_rgba(fit_Pop), s=3)
+    ax[2,1].scatter(data["pro_Rate"], data["sensitivity"],color=scalarMap.to_rgba(fit_Pop), s=5)
     ax[2,1].set_title("production rate vs sensitivity")
 
     data["ratio"] = np.array(data["sensitivity"])* np.array(data["pro_Rate"]) / 10 ** -4
@@ -445,16 +445,18 @@ def graph_last_gen_standard(file, lam, gen):
     x = np.linspace(0, 25*10**-9, num = 100)
     # x = np.linspace(np.min(production),np.max(production), num = 100)
     # ax[2].plot(x, , color="black", linewidth = 2,  linestyle="dashed", )
-    ax[1].plot(x, 10**-4 * 1.62*10**-5 / x , color="black", linewidth=2.0, linestyle="dashdot")
-    ax[1].plot(x, 10**-4 * .4992*10**-5 / x, color="black", linewidth=2.0, linestyle="dashed")
-    if auto:
-        ax[1].set_xlim([0, 23 * 10 **-9])
-        ax[1].set_ylim([0, .3])
-    else:
-        ax[1].set_xlim([0, 9 * 10 **-9])
-        ax[1].set_ylim([0, .75])
+    # ax[1].plot(x, 10**-4 * 1.62*10**-5 / x , color="black", linewidth=2.0, linestyle="dashdot")
+    ax[1].plot(x, 10**-4 * 1.93738*10**-5 / x, color="black", linewidth=2.0, linestyle="dashed")
+    # if auto:
+    #     ax[1].set_xlim([0, 23 * 10 **-9])
+    #     ax[1].set_ylim([0, .3])
+    # else:
+    #     ax[1].set_xlim([0, 9 * 10 **-9])
+    #     ax[1].set_ylim([0, .75])
+    ax[1].set_xlim([0, 10 * 10 **-9])
+    ax[1].set_ylim([0,2])
     fig.suptitle(f"Generation {generation}", fontsize = fs)
-    # 
+    # 1.93738e-5
    
 
     plt.tight_layout()
@@ -583,7 +585,7 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
 
 
 if __name__ == "__main__":
-    file = "New python\json\\25-09 14-27-54 3 0.2 1000000000 5000 True.json"
+    file = "New python\json\log many geno\\03-11 00-59-44 49 1 1000000000 5000 False.json"
     plt.rcParams["savefig.directory"]  = "Pictures"
     font_path = 'Inter-Regular.otf'  # Your font path goes here
     font_manager.fontManager.addfont("C:\\Users\\matth\\Downloads\\Lato\\Lato-Regular.ttf")
@@ -592,10 +594,11 @@ if __name__ == "__main__":
         # 'weight' : 'bold',
         'size'   : 15}
     # print(matplotlib.font_manager.get_font_names())
-    matplotlib.rc('font', **font)
+    # matplotlib.rc('font', **font)
     graph(file)
-    # graph_last_gen(file)
-    # graph_multiple(2, "New python\json\\actuall 50 genotype evo", 0, 10, .5)
+    # for i in [500,1000,1500,2000,2500,3000,3500,4000,4500,5000]:
+    #     graph_last_gen_standard(f"New python\json\log mult sense 10k\gen {i}.json", 10 , i)
+    # # graph_multiple(2, "New python\json\\actuall 50 genotype evo", 0, 10, .5)
     # fig, ax = plt.subplots(1, figsize=(8, 6))
     # steps = np.linspace(0, 6e-5, num=10000)
     # y = [testing.fitness_sum(c) for c in steps]

@@ -243,10 +243,10 @@ def eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop
         cost_sum[i] = H_C_g_j.transpose().dot(np.ones(grid_Size))[0] * coop_Cost
 
         #.5 * np.log((H_C_g_j * env_CellDen) / median_CellDen + 1)
-        H_B_g_j =.5*np.log( (env_CellDen * H_C_g_j.transpose())/ median_CellDen + 1)
+        H_B_g_j =np.log( (env_CellDen * H_C_g_j.transpose())/ median_CellDen + 1)
         # print(1 *H_B_g_j)
         # H_B_g_j = (env_CellDen * H_C_g_j.transpose() - 10**1.5) / (10**5-10**1.5)
-        benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(lam)) / lam)) * coop_Benefit
+        benifit_sum[i] = np.sum((H_B_g_j.transpose().dot(np.ones(lam)) / lam)) * coop_Benefit * sensitivity[i]/ np.average(sensitivity[indexes])
         signal_cost[i] = pro_Rate[i] * sig_Cost
     # signal_cost = pro_Rate * sig_Cost
     fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost

@@ -37,13 +37,13 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
 
     # mutation rate
 
-    # mu_Production = 0.01
-    # mu_sensitiity = 0.01
-    # mu_R = 0.01
-    print("mutation rates increased for testing")
-    mu_Production = 0.1
-    mu_sensitiity = 0.1
-    mu_R = 0.1
+    mu_Production = 0.01
+    mu_sensitiity = 0.01
+    mu_R = 0.01
+    # print("mutation rates increased for testing")
+    # mu_Production = 0.1
+    # mu_sensitiity = 0.1
+    # mu_R = 0.1
 
     # maximum cellular density (cells per microliter)
     max_CellDen = 10.0 ** 5
@@ -276,15 +276,26 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
         #     # graphNoThresholds.graph_last_gen(file)
         #     # graphNoThresholds.graph_last_gen(file)
 
-
-        if g % 500 == 0:
+        #  
+        if g % 500 == 499:
             print(f"{lam}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
-            t = time.time_ns()
-        timestr = time.strftime("%d-%m %H-%M-%S")
+            # t = time.time_ns()
+            # data = {"fit_Pop": fit_Pop.tolist(),
+            #         "pro_Rate": pro_Rate.tolist(),
+            #         "sensitivity": sensitivity.tolist(),
+            #         "auto_R": auto_R.tolist(),
+            #         "coopPayoff_Pop": coopPayoff_Pop.tolist(),
+            #         "sigCost_Pop": sigCost_Pop.tolist(),
+            #         "coopCost_Pop": coopCost_Pop.tolist(),
+            #         "auto_pro_Rate": auto_pro_Rate.tolist()}
+            # file = f"New python\json\log mult sense 10k\gen {g+1}.json"
+            # with open(file, "w") as f:
+            #     json.dump(data, f,  ensure_ascii=False, indent=4)
+    timestr = time.strftime("%d-%m %H-%M-%S")
     if Auto:
         file = f"New python\\auto json\\{timestr} {lam} {init_SN} {sig_Cost} {max_G} {clonal}.json"
     else:
-        file = f"New python\\json\\{timestr} {lam} {init_SN} {sig_Cost} {max_G} {clonal}.json"
+        file = f"New python\json\log many geno\\{timestr} {lam} {init_SN} {sig_Cost} {max_G} {clonal}.json"
     
     data = {"fit_Evo": fit_Evo.tolist(),
             "pro_Rate_Evo": pro_Rate_Evo.tolist(),
@@ -324,19 +335,20 @@ def vary_signal(sig_Cost, auto, clonal):
 def vary_genotype(lam, Auto):
     clonal = False
     # t = time.time_ns()
-    init_SN, sig_Cost, K, mu_Cheats, max_G = .2, 10**9, 50.0, 10.0 ** -4, 5000
+    init_SN, sig_Cost, K, mu_Cheats, max_G = 1, 10**9, 50.0, 10.0 ** -4, 5000
     returnValues = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
     # fit_Evo, pro_Rate_Evo, sensitivity_Evo, auto_R_Evo, coopPayoff_Evo, sigCost_Evo, coopCost_Evo, auto_pro_Rate_Evo = returnValues
     # print((time.time_ns()-t)* 10 **-9)
     # print(f'{sig_Cost // 10 ** 8} done') 
 
 if __name__ == "__main__":
+
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(0,10,step=.1))
-    Auto = False
-    clonal = False
-    # t = time.time_ns()
-    init_SN, sig_Cost, lam, K, mu_Cheats, max_G = .2, 10**9, 1, 50.0, 10.0 ** -4, 5000
-    file = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
-    # graphNoThresholds.graph(file)
+    joblib.Parallel(n_jobs=5)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(10,50,step=1))
+    # Auto = False
+    # clonal = False
+    # # t = time.time_ns()
+    # init_SN, sig_Cost, lam, K, mu_Cheats, max_G = 1, 10**9, 10, 50.0, 10.0 ** -4, 5000
+    # file = main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, max_G=max_G, Auto=Auto, clonal=clonal)
+    # # graphNoThresholds.graph(file)
