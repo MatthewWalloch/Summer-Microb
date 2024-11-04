@@ -245,7 +245,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, mu_Cheats, Auto=False, max_G=500, clonal
             else:
                 coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen)  
 
-                coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen, randlist)  
+                # coopPayoff_Pop, coopCost_Pop, sigCost_Pop, fit_Pop = eval_genotype_No_Auto_Psuedo_Rand_No_Den(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,grid_Size,base_Volume,decay_Rate,median_CellDen, randlist)  
 
 
         # if g in [259, 749, 999, 4999]:
@@ -339,7 +339,7 @@ if __name__ == "__main__":
 
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    joblib.Parallel(n_jobs=5)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(10,50,step=1))
+    joblib.Parallel(n_jobs=5)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(50,100,step=1))
     # Auto = False
     # clonal = False
     # # t = time.time_ns()
