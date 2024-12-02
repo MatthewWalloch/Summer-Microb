@@ -585,20 +585,20 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
 
 
 if __name__ == "__main__":
-    file = "New python\json\log many geno\\03-11 00-59-44 49 1 1000000000 5000 False.json"
-    plt.rcParams["savefig.directory"]  = "Pictures"
-    font_path = 'Inter-Regular.otf'  # Your font path goes here
-    font_manager.fontManager.addfont("C:\\Users\\matth\\Downloads\\Lato\\Lato-Regular.ttf")
-    prop = font_manager.FontProperties(fname=font_path)
-    font = {'family' : 'Lato',
-        # 'weight' : 'bold',
-        'size'   : 15}
-    # print(matplotlib.font_manager.get_font_names())
-    # matplotlib.rc('font', **font)
-    graph(file)
-    # for i in [500,1000,1500,2000,2500,3000,3500,4000,4500,5000]:
-    #     graph_last_gen_standard(f"New python\json\log mult sense 10k\gen {i}.json", 10 , i)
-    # # graph_multiple(2, "New python\json\\actuall 50 genotype evo", 0, 10, .5)
+    # file = "New python\json\log many geno\\03-11 00-59-44 49 1 1000000000 5000 False.json"
+    # plt.rcParams["savefig.directory"]  = "Pictures"
+    # font_path = 'Inter-Regular.otf'  # Your font path goes here
+    # font_manager.fontManager.addfont("C:\\Users\\matth\\Downloads\\Lato\\Lato-Regular.ttf")
+    # prop = font_manager.FontProperties(fname=font_path)
+    # font = {'family' : 'Lato',
+    #     # 'weight' : 'bold',
+    #     'size'   : 15}
+    # # print(matplotlib.font_manager.get_font_names())
+    # # matplotlib.rc('font', **font)
+    # graph(file)
+    # # for i in [500,1000,1500,2000,2500,3000,3500,4000,4500,5000]:
+    # #     graph_last_gen_standard(f"New python\json\log mult sense 10k\gen {i}.json", 10 , i)
+    graph_multiple(2, "New python\json\log many geno", 0, 50, 1)
     # fig, ax = plt.subplots(1, figsize=(8, 6))
     # steps = np.linspace(0, 6e-5, num=10000)
     # y = [testing.fitness_sum(c) for c in steps]
