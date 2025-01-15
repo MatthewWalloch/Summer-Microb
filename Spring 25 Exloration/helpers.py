@@ -5,7 +5,7 @@ import random
 
 
 
-def mut_parameter(mut_vector, mut_P, mut_SD, mut_Min, mut_Max, index_Cheats,size_Pop):
+def mut_parameter(mut_vector, mut_P, mut_SD, mut_Min, mut_Max,size_Pop):
     # mutation operation for evolving traits number chosen based on poission on mut_P and mutated 
     # based on truncated normal based on mut_SD, mut_Min, mut_Max with mean of unmutated value
     # mut_vector, index_Cheats is list of (size_Pop,) 
@@ -15,8 +15,7 @@ def mut_parameter(mut_vector, mut_P, mut_SD, mut_Min, mut_Max, index_Cheats,size
     num_Mut = np.random.poisson(mut_P*size_Pop)
     if num_Mut !=0:
         index_Mut = np.random.choice(size_Pop, size=num_Mut, replace=False)
-        index_Diff = [i for i in index_Mut if index_Cheats[i] != 1]
-        for i in index_Diff:
+        for i in index_Mut:
             mutation =  np.random.normal(mut_vector[i], mut_SD)
             if mutation < mut_Min:
                 mutation = mut_Min
@@ -33,23 +32,31 @@ def sample_ztp(lam):
     return 1 + np.random.poisson(lam - t)
 
 
-def eval_genotype_No_Auto_Clonal(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
-    pro_Rate,sensitivity,gp):
+def eval_genotype_Clonal(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp):
+    den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
+    production_avg = np.zeros(gp["size_Pop"])
+    X_star_avg = np.zeros(gp["size_Pop"])
+    Y_star_avg = np.zeros(gp["size_Pop"])
+    for m in np.arange(1.5e-7, 1.5e-4, step=100):
+        gp["m"] = m
+        denom1 = gp["m"]-induct_Rate1*den_Matrix+decay_Rate1
+        denom2 = gp["m"]-induct_Rate2*den_Matrix+decay_Rate2
+        production1 = (1-np.exp(denom1 * -gp["gen_time"])) *den_Matrix *pro_Rate1 / denom1
+        production2 = (1-np.exp(denom2 * -gp["gen_time"])) *den_Matrix *pro_Rate2 / denom2
+        total_production = production1 + production2
+        X_star = total_production * den_Matrix / (gp["m"]+gp["decay_RateX"])
+        Y_star = X_star * gp["XY_rate"]/ (gp["Y_consumption"] * den_Matrix + gp["m"]+gp["decay_RateY"])
+        
+        production_avg += np.ones(gp["grid_Size"]).dot(total_production)
+        X_star_avg += np.ones(gp["grid_Size"]).dot(X_star)
+        Y_star_avg += np.ones(gp["grid_Size"]).dot(Y_star)
+    signal_cost = production_avg * gp["sig_Cost"]
+    cost_sum = X_star_avg * gp["coop_Cost"] 
+    benifit_sum = Y_star_avg * gp["coop_Benefit"]
+    fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
 
-    contribute = pro_Rate / decay_Rate 
-    contribute_Matrix = np.full((grid_Size,size_Pop), contribute).transpose()
-    den_Matrix = np.full((grid_Size, grid_Size), env_CellDen)
-
-    H_C_g_j = sensitivity * (env_CellDen * contribute_Matrix).transpose() 
-    H_C_g_j = H_C_g_j.transpose()
-    cost_sum =  H_C_g_j.dot(np.ones(grid_Size)) * coop_Cost
-    H_B_g_j = (H_C_g_j * env_CellDen) > np.full((size_Pop,grid_Size), median_CellDen)
-    benifit_sum = H_B_g_j.dot(np.ones(grid_Size)) * coop_Benefit
-    signal_cost = pro_Rate * sig_Cost
-    fitness = np.full((size_Pop,), baseline) + benifit_sum - cost_sum - signal_cost
-
-    return benifit_sum, cost_sum, signal_cost, fitness
-
+    return fitness, benifit_sum, cost_sum, signal_cost
+ 
 def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
     grid_Size,base_Volume,decay_Rate,median_CellDen):

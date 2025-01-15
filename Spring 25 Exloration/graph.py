@@ -6,7 +6,6 @@ import matplotlib
 import json
 import os
 import numpy as np
-import testing
 
 
 # 
@@ -15,49 +14,36 @@ def graph(filename):
     with open(filename, "r") as f:
         data = json.load(f)
     fig, ax = plt.subplots(4,2)
-    max_G= len(data["fit_Evo"])
+    max_G= len(data["fit_Pop_Evo"])
     
-    # maximum cellular density (cells per microliter)
-    max_CellDen = 10.0 ** 5
-    # minimum cellular density
-    min_CellDen = 10.0 ** 1.5
-    grid_Size = 100
-    env_CellDen = np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size)))
-    cm = plt.get_cmap("plasma")
-    cNorm = colors.Normalize(vmin=min_CellDen, vmax= max_CellDen)
-    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
-    for j in env_CellDen:
-        ax[0,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"]) /  10.0 ** -4 * j ** 2, color=scalarMap.to_rgba(j)) # (10.0 ** 1.5)**2
-    ax[0,0].set_title("testing")
-    ax[0,0].plot(range(max_G), np.full((max_G,), 50016 ), color="black")
+    ax[3,1].plot(range(max_G), data["fit_Pop_Evo"])
+    ax[3,1].set_title("fit_Pop_Evo")
 
     
-    ax[3,1].plot(range(max_G), data["fit_Evo"])
-    ax[3,1].set_title("fit_Evo")
 
-    ax[1,0].plot(range(max_G), data["pro_Rate_Evo"])
-    ax[1,0].set_title("pro_Rate_Evo")
-
-    ax[2,0].plot(range(max_G), data["sensitivity_Evo"])
-    ax[2,0].set_title("sensitivity_Evo")
-
-    ax[0,1].plot(range(max_G), data["coopPayoff_Evo"])
+    ax[0,1].plot(range(max_G), data["coopPayoff_Pop_Evo"])
     ax[0,1].set_title("coopPayoff_Evo")
 
-    ax[1,1].plot(range(max_G), data["sigCost_Evo"])
+    ax[1,1].plot(range(max_G), data["sigCost_Pop_Evo"])
     ax[1,1].set_title("sigCost_Evo")
 
-    ax[2,1].plot(range(max_G), data["coopCost_Evo"])
+    ax[2,1].plot(range(max_G), data["coopCost_Pop_Evo"])
     ax[2,1].set_title("coopCost_Evo")
 
     # ax[3,1].plot(range(max_G), np.array(data["auto_pro_Rate_Evo"])+np.array(data["pro_Rate_Evo"]))
     # ax[3,1].set_title("total production")
+    ax[1,0].plot(range(max_G), data["pro_Rate_Evo1"])
+    ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
+    ax[1,0].set_title("pro_Rate_Evo")
 
-    ax[3,0].plot(range(max_G), np.array(data["sensitivity_Evo"])*np.array(data["pro_Rate_Evo"])/  10.0 ** -4 )
-    ax[3,0].set_title("S*p/u")
-    ax[3,0].plot(range(max_G), np.full((max_G,), 1.509*10**-5 ), color="#3fe61e", linewidth=2.0, linestyle="dashdot")
-    ax[3,0].plot(range(max_G), np.full((max_G,), .498*10**-5 ), color="black", linewidth=2.0, linestyle="dashdot")
-    
+    ax[2,0].plot(range(max_G), data["decay_Rate_Evo1"])
+    ax[2,0].plot(range(max_G), data["decay_Rate_Evo2"])
+    ax[2,0].set_title("decay_Rate_Evo")
+
+    ax[3,0].plot(range(max_G), data["induct_Rate_Evo1"])
+    ax[3,0].plot(range(max_G), data["induct_Rate_Evo2"])
+    ax[3,0].set_title("induct_Rate_Evo")
+
     plt.tight_layout()
     plt.subplots_adjust(left= .05, wspace=0.09, hspace=.524)
     plt.show()
@@ -585,17 +571,26 @@ def graph_multiple_standard2(split_value, folder_name, minimum, maximum, step):
 
 
 if __name__ == "__main__":
-    file = "New python\json\log many geno\\03-11 00-59-44 49 1 1000000000 5000 False.json"
-    plt.rcParams["savefig.directory"]  = "Pictures"
-    font_path = 'Inter-Regular.otf'  # Your font path goes here
-    font_manager.fontManager.addfont("C:\\Users\\matth\\Downloads\\Lato\\Lato-Regular.ttf")
-    prop = font_manager.FontProperties(fname=font_path)
-    font = {'family' : 'Lato',
-        # 'weight' : 'bold',
-        'size'   : 15}
+    # for path, directories, files in os.walk("Spring 25 Exloration\json\\testing"):
+    #     for file in files:
+    #         try:
+    #             print(file)
+    #             graph(f"Spring 25 Exloration\json\\testing\\{file}")
+    #         except:
+    #             pass
+    file = "Spring 25 Exloration\json\\testing\\13-01 18-28-09.json"
+    graph(file)
+
+    # plt.rcParams["savefig.directory"]  = "Pictures"
+    # font_path = 'Inter-Regular.otf'  # Your font path goes here
+    # font_manager.fontManager.addfont("C:\\Users\\matth\\Downloads\\Lato\\Lato-Regular.ttf")
+    # prop = font_manager.FontProperties(fname=font_path)
+    # font = {'family' : 'Lato',
+    #     # 'weight' : 'bold',
+    #     'size'   : 15}
     # print(matplotlib.font_manager.get_font_names())
     # matplotlib.rc('font', **font)
-    graph(file)
+    
     # for i in [500,1000,1500,2000,2500,3000,3500,4000,4500,5000]:
     #     graph_last_gen_standard(f"New python\json\log mult sense 10k\gen {i}.json", 10 , i)
     # # graph_multiple(2, "New python\json\\actuall 50 genotype evo", 0, 10, .5)
