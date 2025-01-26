@@ -16,32 +16,32 @@ def graph(filename):
     fig, ax = plt.subplots(4,2)
     max_G= len(data["fit_Pop_Evo"])
     
-    ax[3,1].plot(range(max_G), data["fit_Pop_Evo"])
-    ax[3,1].set_title("fit_Pop_Evo")
+    ax[0,1].plot(range(max_G), data["fit_Pop_Evo"])
+    ax[0,1].set_title("Fitness per generation")
 
     
 
-    ax[0,1].plot(range(max_G), data["coopPayoff_Pop_Evo"])
-    ax[0,1].set_title("coopPayoff_Evo")
-
-    ax[1,1].plot(range(max_G), data["sigCost_Pop_Evo"])
-    ax[1,1].set_title("sigCost_Evo")
+    ax[1,1].plot(range(max_G), data["coopPayoff_Pop_Evo"])
+    ax[1,1].set_title("Y sum per generation")
 
     ax[2,1].plot(range(max_G), data["coopCost_Pop_Evo"])
-    ax[2,1].set_title("coopCost_Evo")
+    ax[2,1].set_title("X sum per generation")
+
+    ax[3,1].plot(range(max_G), data["sigCost_Pop_Evo"])
+    ax[3,1].set_title("S sum per generation")
 
     # ax[3,1].plot(range(max_G), np.array(data["auto_pro_Rate_Evo"])+np.array(data["pro_Rate_Evo"]))
     # ax[3,1].set_title("total production")
     ax[1,0].plot(range(max_G), data["pro_Rate_Evo1"])
-    ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
+    # ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
     ax[1,0].set_title("pro_Rate_Evo")
 
     ax[2,0].plot(range(max_G), data["decay_Rate_Evo1"])
-    ax[2,0].plot(range(max_G), data["decay_Rate_Evo2"])
+    # ax[2,0].plot(range(max_G), data["decay_Rate_Evo2"])
     ax[2,0].set_title("decay_Rate_Evo")
 
     ax[3,0].plot(range(max_G), data["induct_Rate_Evo1"])
-    ax[3,0].plot(range(max_G), data["induct_Rate_Evo2"])
+    # ax[3,0].plot(range(max_G), data["induct_Rate_Evo2"])
     ax[3,0].set_title("induct_Rate_Evo")
 
     plt.tight_layout()
@@ -578,7 +578,7 @@ if __name__ == "__main__":
     #             graph(f"Spring 25 Exloration\json\\testing\\{file}")
     #         except:
     #             pass
-    file = "Spring 25 Exloration\json\\testing\\13-01 18-28-09.json"
+    file = "Spring 25 Exloration\json\\testing\\25-01 17-15-20.json"
     graph(file)
 
     # plt.rcParams["savefig.directory"]  = "Pictures"

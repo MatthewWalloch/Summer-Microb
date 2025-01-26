@@ -32,7 +32,7 @@ def sample_ztp(lam):
     return 1 + np.random.poisson(lam - t)
 
 
-def eval_genotype_Clonal(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp):
+def eval_genotype_Clonal_two_sig(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp):
     den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
     production_avg = np.zeros(gp["size_Pop"])
     X_star_avg = np.zeros(gp["size_Pop"])
@@ -56,7 +56,29 @@ def eval_genotype_Clonal(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_
     fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
 
     return fitness, benifit_sum, cost_sum, signal_cost
- 
+
+def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1,gp):
+    den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
+    production_avg = np.zeros(gp["size_Pop"])
+    X_star_avg = np.zeros(gp["size_Pop"])
+    Y_star_avg = np.zeros(gp["size_Pop"])
+    for m in np.arange(1.5e-7, 1.5e-4, step=100):
+        npNPRku = (den_Matrix * pro_Rate1*(1+induct_Rate1)) - gp["k"]*(decay_Rate1+m)
+        contribute = 4*gp["k"]*den_Matrix*pro_Rate1*(decay_Rate1+m) + (-1*npNPRku)**2
+        total_production = (npNPRku + np.sqrt(contribute)) / (2*(decay_Rate1+m))
+
+        X_star = gp["X_prod"] * total_production / (total_production + gp["Ks"]) * den_Matrix / (m+gp["decay_RateX"])
+        Y_star = X_star / (X_star + gp["Kx"]) * gp["XY_rate"]/ (gp["Y_consumption"] * den_Matrix + m+gp["decay_RateY"])
+        
+        production_avg += np.ones(gp["grid_Size"]).dot(total_production)
+        X_star_avg += np.ones(gp["grid_Size"]).dot(X_star)
+        Y_star_avg += np.ones(gp["grid_Size"]).dot(Y_star)
+    signal_cost = production_avg * gp["sig_Cost"]
+    cost_sum = X_star_avg * gp["coop_Cost"] 
+    benifit_sum = Y_star_avg * gp["coop_Benefit"]
+    fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
+
+    return fitness, benifit_sum, cost_sum, signal_cost
 def eval_genotype_No_Auto(fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop,
     pro_Rate,sensitivity,baseline,coop_Benefit,coop_Cost,sig_Cost,size_Pop,lam,env_CellDen,
     grid_Size,base_Volume,decay_Rate,median_CellDen):

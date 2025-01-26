@@ -8,7 +8,7 @@ import joblib
 
 
 
-def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
+def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     ################################################################################
     # set parameters
     ################################################################################
@@ -24,21 +24,23 @@ def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
     
     gp = {
         "baseline": 100,
-        "coop_Benefit": 13e-5, #15e-5 for 10 min
-        "coop_Cost": 5e-9,
-        "sig_Cost": sig_Cost,
+        "coop_Benefit": 1 / 500,
+        "coop_Cost":2.5 / 500,
+        "sig_Cost": 10 / 500,
         "size_Pop": size_Pop,
         "lam": lam,
         "env_CellDen": np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size))),
         "grid_Size": grid_Size,
-        "decay_RateY": 10.0 ** -4.0,
-        "decay_RateX": 10.0 ** -4.0,
-        "Y_consumption": 10.0 ** -8.0,
-        "XY_rate": 5e-8,
+        "k": 50,
+        "Ks": 1.6,
+        "X_prod": 5e-9,
+        "decay_RateX": 4e-6,
+        "decay_RateY": 4e-6,
+        "Kx": 500,
+        "Y_consumption": 1e-8,
+        "XY_rate": 2e0,
         "median_CellDen": (max_CellDen + min_CellDen) * .5,
-        "k": K,
-        "m": "10.0 ** -7.0 to 1e-4 100 steps",
-        "gen_time": 10*60
+        "m": "10.0 ** -7.0 to 1e-4 100 steps"
     }
     gp_no_np= {k: gp[k] for k in set(list(gp.keys())) - set(["env_CellDen"])}
     # mutation rate
@@ -58,9 +60,9 @@ def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
     # minimum cellular production rate
     min_ProRate = 0
     # initial cellular production rate
-    init_pro_Rate = 5e-9
+    init_pro_Rate = testing
     # SD for mutation of cellular production rate
-    mu_SD_ProRate = 0.01e-09
+    mu_SD_ProRate = 0.1e-09
     gp_no_np["Production mutation"] = [max_ProRate, min_ProRate, init_pro_Rate, mu_SD_ProRate]
     # maximum cellular production rate
     max_DecayRate = 10
@@ -125,8 +127,10 @@ def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
     ################################################################################
     # initial evaluation
 
-    # eval_genotype
-    fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp)
+    # genotype eval function
+    fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1,gp)
+    
+    
     g = 0
     fit_Evo[g] = np.mean(fit_Pop)
     pro_Rate_Evo1[g] = np.mean(pro_Rate1)
@@ -161,6 +165,8 @@ def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
             if fit_Pop[i] < 0:
                 fit_Pop[i] = 0.0
         fit_pop_probability = fit_Pop
+        if sum(fit_pop_probability) == 0:
+            fit_pop_probability = np.ones(size_Pop)
         fit_pop_probability = fit_pop_probability / sum(fit_pop_probability)
         index_Select = np.random.choice(size_Pop, size=size_Pop, p=fit_pop_probability)
 
@@ -212,12 +218,12 @@ def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
         sigCost_Evo[g] = np.mean(sigCost_Pop)
         coopCost_Evo[g] = np.mean(coopCost_Pop)
 
+        # genotype eval function
+        fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1,gp)
         
-        fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp)
-        # genotype evaluation
         
         if g % 500 == 499:
-            print(f"{lam}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
+            print(f"{testing}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
             data = {"fit_Pop": fit_Pop.tolist(),
                     "pro_Rate1": pro_Rate1.tolist(),
@@ -234,7 +240,7 @@ def main_QS(init_SN, sig_Cost ,lam , K, Auto=False, max_G=500, clonal=True):
             with open(file, "w") as f:
                 json.dump(data, f,  ensure_ascii=False, indent=4)
     timestr = time.strftime("%d-%m %H-%M-%S")
-    file = f"Spring 25 Exloration\json\\testing\\{timestr}.json"
+    file = f"Spring 25 Exloration\json\Production rate testing\\{timestr}.json"
     
     data = {"fit_Pop_Evo": fit_Evo.tolist(),
                 "pro_Rate_Evo1": pro_Rate_Evo1.tolist(),
@@ -257,10 +263,11 @@ if __name__ == "__main__":
 
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    # joblib.Parallel(n_jobs=5)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), False) for lam in np.arange(10,50,step=1)
+    joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 2e-08, 100))
     clonal = False
     # # t = time.time_ns()
-    init_SN, sig_Cost, lam, K, max_G = 1, 10e-1, 10, 50.0, 5000
-    file = main_QS(init_SN, sig_Cost ,lam , K, max_G=max_G, clonal=clonal)
-    graph(file)
+    max_G = 5000
+    # for p in np.linspace(0, 2e-08, 100):
+    #     file = main_QS(1, p, max_G=max_G, clonal=clonal)
+    # graph(file)
     # # graphNoThresholds.graph(file)
