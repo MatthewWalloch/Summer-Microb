@@ -15,6 +15,7 @@ def graph(filename):
         data = json.load(f)
     fig, ax = plt.subplots(4,2)
     max_G= len(data["fit_Pop_Evo"])
+
     
     ax[0,1].plot(range(max_G), data["fit_Pop_Evo"])
     ax[0,1].set_title("Fitness per generation")
@@ -32,6 +33,10 @@ def graph(filename):
 
     # ax[3,1].plot(range(max_G), np.array(data["auto_pro_Rate_Evo"])+np.array(data["pro_Rate_Evo"]))
     # ax[3,1].set_title("total production")
+    ax[0,0].plot(range(max_G), data["X_pro_Rate_Evo"])
+    # ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
+    ax[1,0].set_title("X Production Rate")
+
     ax[1,0].plot(range(max_G), data["pro_Rate_Evo1"])
     # ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
     ax[1,0].set_title("pro_Rate_Evo")
@@ -578,7 +583,7 @@ if __name__ == "__main__":
     #             graph(f"Spring 25 Exloration\json\\testing\\{file}")
     #         except:
     #             pass
-    file = "Spring 25 Exloration\json\\testing\\25-01 17-15-20.json"
+    file = "Spring 25 Exloration/json/Production rate testing/04-02 11-24-49.json"
     graph(file)
 
     # plt.rcParams["savefig.directory"]  = "Pictures"

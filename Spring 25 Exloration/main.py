@@ -24,15 +24,15 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     
     gp = {
         "baseline": 100,
-        "coop_Benefit": 1 / 500,
+        "coop_Benefit": .75 / 500,
         "coop_Cost":2.5 / 500,
-        "sig_Cost": 10 / 500,
+        "sig_Cost": 16 / 50000,
         "size_Pop": size_Pop,
         "lam": lam,
         "env_CellDen": np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size))),
         "grid_Size": grid_Size,
         "k": 50,
-        "Ks": 1.6,
+        "Ks": 600,
         "X_prod": 5e-9,
         "decay_RateX": 4e-6,
         "decay_RateY": 4e-6,
@@ -47,6 +47,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     mu_Production = 0.01
     mu_DecayRate = 0.01
     mu_induct_Rate = 0.01
+    mu_X_pro_Rate = 0.01
     # print("mutation rates increased for testing")
     # mu_Production = 0.1
     # mu_sensitiity = 0.1
@@ -74,15 +75,25 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     mu_SD_DecayRate = 1e-7
     gp_no_np["Decay mutation"] = [max_DecayRate, min_DecayRate, init_DecayRate, mu_SD_DecayRate]
     # maximum ratio of autoinduction production
-    max_induct_Rate = 10e-4
+    max_induct_Rate = 20
     # minimum ratio of autoinduction production
-    min_induct_Rate = 10e-10
+    min_induct_Rate = 0
     # initial ratio of autoinduction production
-    init_induct_Rate = 5e-08
+    init_induct_Rate = 5
     # SD for mutation of ratio of autoinduction production
     mu_SD_induct_Rate = 1e-09
     gp_no_np["Induction mutation"] = [max_induct_Rate, min_induct_Rate, init_induct_Rate, mu_SD_induct_Rate]
 
+
+    # maximum cellular production rate
+    max_X_ProRate = 2e-08
+    # minimum cellular production rate
+    min_X_ProRate = 0
+    # initial cellular production rate
+    init_X_pro_Rate = 5e-9
+    # SD for mutation of cellular production rate
+    mu_SD_X_ProRate = 0.1e-09
+    gp_no_np["X Production Mutation"] = [max_X_ProRate, min_X_ProRate, init_X_pro_Rate, mu_SD_X_ProRate]
     ################################################################################
     # initialization
     ################################################################################
@@ -95,6 +106,9 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     # initialize ratio of autoinduction production
     induct_Rate1 = np.full((size_Pop,), init_induct_Rate)
     induct_Rate2 = np.full((size_Pop,), init_induct_Rate)
+
+    X_pro_Rate = np.full((size_Pop,), init_X_pro_Rate)
+
     # initialize genotype fitness
     fit_Pop = np.zeros((size_Pop,))
     # initialize cooperation payoff
@@ -122,13 +136,15 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     coopCost_Evo =  np.zeros(max_G)
     coopEff_Evo =  np.zeros(max_G)
     auto_pro_Rate_Evo =  np.zeros(max_G)
+    X_pro_Rate_Evo = np.zeros(max_G)
+
     ################################################################################
     # Evolution
     ################################################################################
     # initial evaluation
 
     # genotype eval function
-    fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1,gp)
+    fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp)
     
     
     g = 0
@@ -142,7 +158,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     coopPayoff_Evo[g] = np.mean(coopPayoff_Pop)
     sigCost_Evo[g] = np.mean(sigCost_Pop)
     coopCost_Evo[g] = np.mean(coopCost_Pop)
-
+    X_pro_Rate_Evo[g] = np.mean(X_pro_Rate)
     rng = np.random.default_rng()
     t= time.time_ns()
     for g in range(1,max_G):
@@ -153,8 +169,8 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         temp_decay_Rate2 = np.zeros(size_Pop)
         temp_induct_Rate1 = np.zeros(size_Pop)
         temp_induct_Rate2 = np.zeros(size_Pop)
+        temp_X_pro_Rate = np.zeros(size_Pop)
 
-        temp_sensitivity = np.zeros(size_Pop)
         temp_fit_Pop = np.zeros(size_Pop)
         temp_coopPayoff_Pop = np.zeros(size_Pop)
         temp_coopCost_Pop = np.zeros(size_Pop)
@@ -178,6 +194,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
             temp_decay_Rate2[n] = decay_Rate2[choice]
             temp_induct_Rate1[n] = induct_Rate1[choice]
             temp_induct_Rate2[n] = induct_Rate2[choice]
+            temp_X_pro_Rate[n] = X_pro_Rate[choice]
 
             temp_fit_Pop[n] = fit_Pop[choice]
             temp_coopPayoff_Pop[n] = coopPayoff_Pop[choice]
@@ -195,17 +212,21 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         coopPayoff_Pop = temp_coopPayoff_Pop 
         coopCost_Pop = temp_coopCost_Pop
         sigCost_Pop = temp_sigCost_Pop
+        X_pro_Rate = temp_X_pro_Rate
 
         
         # mutate production rate
         pro_Rate1 = mut_parameter(pro_Rate1,mu_Production,mu_SD_ProRate,min_ProRate,max_ProRate,size_Pop)
         pro_Rate2 = mut_parameter(pro_Rate2,mu_Production,mu_SD_ProRate,min_ProRate,max_ProRate,size_Pop)
         # mutate signal threshold
-        decay_Rate1 = mut_parameter(decay_Rate1,mu_DecayRate,mu_SD_DecayRate,min_DecayRate,max_DecayRate,size_Pop)
-        decay_Rate2 = mut_parameter(decay_Rate2,mu_DecayRate,mu_SD_DecayRate,min_DecayRate,max_DecayRate,size_Pop)
-        # mutate ratio of autoinduction production
-        induct_Rate1 = mut_parameter(induct_Rate1,mu_induct_Rate,mu_SD_induct_Rate,min_induct_Rate,max_induct_Rate,size_Pop)
-        induct_Rate2 = mut_parameter(induct_Rate2,mu_induct_Rate,mu_SD_induct_Rate,min_induct_Rate,max_induct_Rate,size_Pop)
+        # decay_Rate1 = mut_parameter(decay_Rate1,mu_DecayRate,mu_SD_DecayRate,min_DecayRate,max_DecayRate,size_Pop)
+        # decay_Rate2 = mut_parameter(decay_Rate2,mu_DecayRate,mu_SD_DecayRate,min_DecayRate,max_DecayRate,size_Pop)
+        # # mutate ratio of autoinduction production
+        # induct_Rate1 = mut_parameter(induct_Rate1,mu_induct_Rate,mu_SD_induct_Rate,min_induct_Rate,max_induct_Rate,size_Pop)
+        # induct_Rate2 = mut_parameter(induct_Rate2,mu_induct_Rate,mu_SD_induct_Rate,min_induct_Rate,max_induct_Rate,size_Pop)
+        
+        X_pro_Rate = mut_parameter(X_pro_Rate, mu_X_pro_Rate, mu_SD_X_ProRate, min_X_ProRate, max_X_ProRate, size_Pop)
+        
         # save results  0 sec ish
         fit_Evo[g] = np.mean(fit_Pop)
         pro_Rate_Evo1[g] = np.mean(pro_Rate1)
@@ -217,9 +238,10 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         coopPayoff_Evo[g] = np.mean(coopPayoff_Pop)
         sigCost_Evo[g] = np.mean(sigCost_Pop)
         coopCost_Evo[g] = np.mean(coopCost_Pop)
+        X_pro_Rate_Evo[g] = np.mean(X_pro_Rate)
 
         # genotype eval function
-        fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1,gp)
+        fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp)
         
         
         if g % 500 == 499:
@@ -232,6 +254,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
                     "decay_Rate2": decay_Rate2.tolist(),
                     "induct_Rate1": induct_Rate1.tolist(),
                     "induct_Rate2": induct_Rate2.tolist(),
+                    "X_pro_Rate": X_pro_Rate.tolist(),
                     "coopPayoff_Pop": coopPayoff_Pop.tolist(),
                     "sigCost_Pop": sigCost_Pop.tolist(),
                     "coopCost_Pop": coopCost_Pop.tolist(),
@@ -239,7 +262,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
             file = f"Spring 25 Exloration\json\\testing\\gen {g+1}.json"
             with open(file, "w") as f:
                 json.dump(data, f,  ensure_ascii=False, indent=4)
-    timestr = time.strftime("%d-%m %H-%M-%S")
+    timestr = time.strftime("%m-%d %H-%M-%S")
     file = f"Spring 25 Exloration\json\Production rate testing\\{timestr}.json"
     
     data = {"fit_Pop_Evo": fit_Evo.tolist(),
@@ -249,6 +272,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
                 "decay_Rate_Evo2": decay_Rate_Evo2.tolist(),
                 "induct_Rate_Evo1": induct_Rate_Evo1.tolist(),
                 "induct_Rate_Evo2": induct_Rate_Evo2.tolist(),
+                "X_pro_Rate_Evo": X_pro_Rate_Evo.tolist(),
                 "coopPayoff_Pop_Evo": coopPayoff_Evo.tolist(),
                 "sigCost_Pop_Evo": sigCost_Evo.tolist(),
                 "coopCost_Pop_Evo": coopCost_Evo.tolist(),
@@ -263,11 +287,10 @@ if __name__ == "__main__":
 
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 2e-08, 100))
+    # joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 2e-08, 100))
     clonal = False
     # # t = time.time_ns()
     max_G = 5000
-    # for p in np.linspace(0, 2e-08, 100):
-    #     file = main_QS(1, p, max_G=max_G, clonal=clonal)
-    # graph(file)
+    file = main_QS(1, 5e-9, max_G=max_G, clonal=clonal)
+    graph(file)
     # # graphNoThresholds.graph(file)
