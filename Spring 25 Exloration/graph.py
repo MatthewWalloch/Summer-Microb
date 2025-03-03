@@ -583,7 +583,7 @@ if __name__ == "__main__":
     #             graph(f"Spring 25 Exloration\json\\testing\\{file}")
     #         except:
     #             pass
-    file = "Spring 25 Exloration/json/Production rate testing/04-02 11-24-49.json"
+    file = "Spring 25 Exloration\json\Production rate testing\\02-22 20-22-36.json"
     graph(file)
 
     # plt.rcParams["savefig.directory"]  = "Pictures"
@@ -593,7 +593,8 @@ if __name__ == "__main__":
     # font = {'family' : 'Lato',
     #     # 'weight' : 'bold',
     #     'size'   : 15}
-    # print(matplotlib.font_manager.get_font_names())
+    # print(matplotlib.font_manager.get_font_
+    # names())
     # matplotlib.rc('font', **font)
     
     # for i in [500,1000,1500,2000,2500,3000,3500,4000,4500,5000]:

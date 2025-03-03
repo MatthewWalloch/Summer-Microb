@@ -63,7 +63,7 @@ def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp):
     production_avg = np.zeros(gp["size_Pop"])
     X_star_avg = np.zeros(gp["size_Pop"])
     Y_star_avg = np.zeros(gp["size_Pop"])
-    for m in np.arange(1.5e-7, 1.5e-4, step=100):
+    for m in np.linspace(1.5e-7, 1.5e-4, num=100):
         npNPRku = (den_Matrix * pro_Rate1*(1+induct_Rate1)) - gp["k"]*(decay_Rate1+m)
         contribute = 4*gp["k"]*den_Matrix*pro_Rate1*(decay_Rate1+m) + (-1*npNPRku)**2
         total_production = (npNPRku + np.sqrt(contribute)) / (2*(decay_Rate1+m))

@@ -32,8 +32,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         "env_CellDen": np.array(list(np.linspace(min_CellDen, max_CellDen,num=grid_Size))),
         "grid_Size": grid_Size,
         "k": 50,
-        "Ks": 600,
-        "X_prod": 5e-9,
+        "Ks": 500,
         "decay_RateX": 4e-6,
         "decay_RateY": 4e-6,
         "Kx": 500,
@@ -57,20 +56,20 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
  
    
     # maximum cellular production rate
-    max_ProRate = 2e-08
+    max_ProRate = 1e-06
     # minimum cellular production rate
     min_ProRate = 0
     # initial cellular production rate
-    init_pro_Rate = testing
+    init_pro_Rate = 3.686e-08
     # SD for mutation of cellular production rate
-    mu_SD_ProRate = 0.1e-09
+    mu_SD_ProRate = 0.1e-08
     gp_no_np["Production mutation"] = [max_ProRate, min_ProRate, init_pro_Rate, mu_SD_ProRate]
     # maximum cellular production rate
     max_DecayRate = 10
     # minimum cellular production rate
     min_DecayRate = 10e-11
     # initial cellular production rate
-    init_DecayRate = 4e-6
+    init_DecayRate = 1e-4
     # SD for mutation of cellular production rate
     mu_SD_DecayRate = 1e-7
     gp_no_np["Decay mutation"] = [max_DecayRate, min_DecayRate, init_DecayRate, mu_SD_DecayRate]
@@ -86,13 +85,13 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
 
 
     # maximum cellular production rate
-    max_X_ProRate = 2e-08
+    max_X_ProRate = 1e-06
     # minimum cellular production rate
     min_X_ProRate = 0
     # initial cellular production rate
-    init_X_pro_Rate = 5e-9
+    init_X_pro_Rate = 1.780e-07
     # SD for mutation of cellular production rate
-    mu_SD_X_ProRate = 0.1e-09
+    mu_SD_X_ProRate = 0.1e-08
     gp_no_np["X Production Mutation"] = [max_X_ProRate, min_X_ProRate, init_X_pro_Rate, mu_SD_X_ProRate]
     ################################################################################
     # initialization
