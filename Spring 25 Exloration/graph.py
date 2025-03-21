@@ -583,7 +583,7 @@ if __name__ == "__main__":
     #             graph(f"Spring 25 Exloration\json\\testing\\{file}")
     #         except:
     #             pass
-    file = "Spring 25 Exloration\json\Production rate testing\\02-22 20-22-36.json"
+    file = "Spring 25 Exloration\json\Production rate testing\\03-08 13-35-10.json"
     graph(file)
 
     # plt.rcParams["savefig.directory"]  = "Pictures"
