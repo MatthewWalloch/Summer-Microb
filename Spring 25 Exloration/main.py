@@ -35,7 +35,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         "Ks": 400,
         "decay_RateX": 4e-6,
         "decay_RateY": 4e-6,
-        "Kx": 400,
+        "Kx": testing,
         "Y_consumption": 1e-8,
         "XY_rate": 2e0,
         "median_CellDen": (max_CellDen + min_CellDen) * .5,
@@ -262,7 +262,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
             with open(file, "w") as f:
                 json.dump(data, f,  ensure_ascii=False, indent=4)
     timestr = time.strftime("%m-%d %H-%M-%S")
-    file = f"Spring 25 Exloration\json\Production rate testing\\{timestr}.json"
+    file = f"Spring 25 Exloration\json\Production rate testing\\{timestr} {testing}.json"
     
     data = {"fit_Pop_Evo": fit_Evo.tolist(),
                 "pro_Rate_Evo1": pro_Rate_Evo1.tolist(),
@@ -286,10 +286,10 @@ if __name__ == "__main__":
 
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    # joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 2e-08, 100))
-    clonal = False
+    joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 1000, 20))
+    # clonal = False
     # # t = time.time_ns()
-    max_G = 5000
-    file = main_QS(1, 5e-9, max_G=max_G, clonal=clonal)
-    graph(file)
+    # max_G = 5000
+    # file = main_QS(1, 5e-9, max_G=max_G, clonal=clonal)
+    # graph(file)
     # # graphNoThresholds.graph(file)
