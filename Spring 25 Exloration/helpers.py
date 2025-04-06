@@ -33,10 +33,15 @@ def sample_ztp(lam):
 
 
 def eval_genotype_Clonal_two_sig(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp):
+
+    ## this is wrong do not use
+
     den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
+    m_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
     production_avg = np.zeros(gp["size_Pop"])
     X_star_avg = np.zeros(gp["size_Pop"])
     Y_star_avg = np.zeros(gp["size_Pop"])
+    
     for m in np.arange(1.5e-7, 1.5e-4, step=100):
         gp["m"] = m
         denom1 = gp["m"]-induct_Rate1*den_Matrix+decay_Rate1
@@ -60,6 +65,10 @@ def eval_genotype_Clonal_two_sig(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2,
 
 def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp):
     den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
+
+    m_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), np.linspace(1.5e-7, 1.5e-4, num=gp["grid_Size"])).transpose()
+
+    
     production_avg = np.zeros(gp["size_Pop"])
     X_star_avg = np.zeros(gp["size_Pop"])
     Y_star_avg = np.zeros(gp["size_Pop"])
@@ -81,6 +90,35 @@ def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp):
     
     return fitness, benifit_sum, cost_sum, signal_cost
 
+# def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp):
+#     den_cube = np.transpose(np.full((gp["size_Pop"],gp["grid_Size"], gp["grid_Size"]), gp["env_CellDen"]), axes=[1,2,0])
+
+#     m_cube = np.transpose(np.full((gp["size_Pop"], gp["grid_Size"], gp["grid_Size"]), np.linspace(1.5e-7, 1.5e-4, num=gp["grid_Size"])), axes=[2,1,0])
+
+#     production_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), pro_Rate1)
+#     decay_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), decay_Rate1)
+#     indcut_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), induct_Rate1)
+#     X_prod_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), X_pro_Rate)
+
+#     # 2.2 
+#     npNPRku = (den_cube * production_cube*(1+indcut_cube)) - gp["k"]*(decay_cube+m_cube)
+    
+#     #2
+#     contribute = 4*gp["k"]*den_cube*production_cube*(decay_cube+m_cube) + (-1*npNPRku)**2
+#     #1.5
+#     total_production = (npNPRku + np.sqrt(contribute)) / (2*(decay_cube+m_cube))
+
+#     # 1.8 ish 
+#     X_star = X_prod_cube * total_production / (total_production + gp["Ks"]) * den_cube / (m_cube+gp["decay_RateX"])
+#     # 1.2 ish
+#     Y_star = X_star / (X_star + gp["Kx"]) * gp["XY_rate"]/ (gp["Y_consumption"] * den_cube + m_cube+gp["decay_RateY"])
+    
+#     signal_cost = total_production.sum(axis=0).sum(axis=0) * gp["sig_Cost"]
+#     cost_sum = X_star.sum(axis=0).sum(axis=0) * gp["coop_Cost"] 
+#     benifit_sum =  Y_star.sum(axis=0).sum(axis=0)* gp["coop_Benefit"]
+#     fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
+    
+#     return fitness, benifit_sum, cost_sum, signal_cost
 
 # testing code:
 if __name__ == "__main__":
@@ -100,3 +138,6 @@ if __name__ == "__main__":
     # print(threshold_matrix)
     # print(product > threshold_matrix)
     # print(((product > threshold_matrix) * test2)> np.full((3,4), 5.5))
+    cube = np.full((2,4, 3), [1,2,3])
+    cube2 = np.full((3,2, 3), [1,2,3])
+    print(cube.sum(np.full((2,4,1),1)))

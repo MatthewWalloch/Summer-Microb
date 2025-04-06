@@ -243,7 +243,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp)
         
         
-        if g % 500 == 499:
+        if g % 1 == 0:
             print(f"{testing}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
             data = {"fit_Pop": fit_Pop.tolist(),
@@ -259,8 +259,8 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
                     "coopCost_Pop": coopCost_Pop.tolist(),
                     "params": gp_no_np}
             file = f"Spring 25 Exloration\json\\testing\\gen {g+1}.json"
-            with open(file, "w") as f:
-                json.dump(data, f,  ensure_ascii=False, indent=4)
+            # with open(file, "w") as f:
+            #     json.dump(data, f,  ensure_ascii=False, indent=4)
     timestr = time.strftime("%m-%d %H-%M-%S")
     file = f"Spring 25 Exloration\json\Production rate testing\\{timestr} {testing}.json"
     
@@ -286,10 +286,10 @@ if __name__ == "__main__":
 
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 1000, 20))
-    # clonal = False
-    # # t = time.time_ns()
-    # max_G = 5000
-    # file = main_QS(1, 5e-9, max_G=max_G, clonal=clonal)
-    # graph(file)
+    # joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 1000, 20))
+    clonal = False
+    # t = time.time_ns()
+    max_G = 5000
+    file = main_QS(1, 400, max_G=max_G, clonal=clonal)
+    graph(file)
     # # graphNoThresholds.graph(file)

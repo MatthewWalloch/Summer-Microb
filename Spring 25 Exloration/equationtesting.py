@@ -62,23 +62,23 @@ r_space = np.linspace(r_val[0],r_val[1], 100)
 u_space = np.linspace(u_val[0],u_val[1], 100)
 
 kx=400
-ky=600
+ky=526
 
-fig, ax = plt.subplots(1,2, figsize=(12,6))
-ax[0].plot(N_space, sig_Cost * s_star(N_space,m,p,r,u,K), label="S Star")
-ax[0].plot(N_space, coop_cost * x_star(N_space, m,s_star(N_space,m,p,r,u,K),f, P,kx=kx) ,  label="X Star")
-ax[0].plot(N_space, coop_Benefit * y_star(N_space, m, q, x_star(N_space, m,s_star(N_space,m,p,r,u,K),f, P,kx=kx), c, e,ky=ky),  label="Y Star")
+# fig, ax = plt.subplots(1,2, figsize=(12,6))
+# ax[0].plot(N_space, sig_Cost * s_star(N_space,m,p,r,u,K), label="S Star")
+# ax[0].plot(N_space, coop_cost * x_star(N_space, m,s_star(N_space,m,p,r,u,K),f, P,kx=kx) ,  label="X Star")
+# ax[0].plot(N_space, coop_Benefit * y_star(N_space, m, q, x_star(N_space, m,s_star(N_space,m,p,r,u,K),f, P,kx=kx), c, e,ky=ky),  label="Y Star")
 
-ax[0].legend()
-ax[0].set_xlabel("Cellular density")
-ax[1].plot(m_space, sig_Cost * s_star(N,m_space,p,r,u,K), label="S Star")
-ax[1].plot(m_space, coop_cost * x_star(N, m_space,s_star(N,m_space,p,r,u,K),f, P,kx=kx),  label="X Star")
-ax[1].plot(m_space, coop_Benefit * y_star(N, m_space, q, x_star(N, m_space,s_star(N,m_space,p,r,u,K),f, P,kx=kx), c, e,ky=ky),  label="Y Star")
-ax[1].legend()
-ax[1].set_xlabel("Mass transfer")
-ax[0].set_ylim(0,1.1)
-ax[1].set_ylim(0,2.9)
-plt.show() 
+# ax[0].legend()
+# ax[0].set_xlabel("Cellular density")
+# ax[1].plot(m_space, sig_Cost * s_star(N,m_space,p,r,u,K), label="S Star")
+# ax[1].plot(m_space, coop_cost * x_star(N, m_space,s_star(N,m_space,p,r,u,K),f, P,kx=kx),  label="X Star")
+# ax[1].plot(m_space, coop_Benefit * y_star(N, m_space, q, x_star(N, m_space,s_star(N,m_space,p,r,u,K),f, P,kx=kx), c, e,ky=ky),  label="Y Star")
+# ax[1].legend()
+# ax[1].set_xlabel("Mass transfer")
+# ax[0].set_ylim(0,1.1)
+# ax[1].set_ylim(0,2.9)
+# plt.show() 
 
 # fig, ax = plt.subplots(1,2)
 # ax[0].plot(N_space, coop_Benefit * y_star(N_space, m, q, x_star(N_space, m,s_star(N_space,m,p,r,u,K),f, P), c, e)- coop_cost * x_star(N_space, m,s_star(N_space,m,p,r,u,K),f, P)-sig_Cost * s_star(N_space,m,p,r,u,K),  label="fitness")
@@ -98,36 +98,36 @@ plt.show()
 # plt.xlabel("S_star")
 # plt.show() 
 
-# fig = plt.figure()
-# ax = fig.add_subplot(projection='3d')
-# x = []
-# y = []
-# z = []
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+x = []
+y = []
+z = []
 # z2 = []
 
-# for p in np.linspace(0.0,5e-7, 50):
-#     for P in np.linspace(0.0,5e-7, 50):
-#         fit = -fitness(p,r,u,K,f,q,c,e, P,ks=400, kx=800)
-#         if fit > 0:
-#             x.append(p)
-#             y.append(P)
-#             z.append(fit)
-# # # for p in np.linspace(1e-7,5e-7, 100):
-# # #     for P in np.linspace(0.0,1e-7, 50):
-# # #         fit = fitness(p,r,u,K,f,q,c,e, P)
-# # #         if fit > 0:
-# # #             x.append(p)
-# # #             y.append(P)
-# # #             z.append(fit)
-# cm = plt.get_cmap("plasma")
-# z = np.array(z).clip(0)
-# cNorm = colors.Normalize(vmin=0, vmax= np.max(z))
-# scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
-# ax.scatter(x,y,z, color=scalarMap.to_rgba(z))
-# ax.set_xlabel("S production")
-# ax.set_ylabel("X production")
-# ax.set_zlabel("Fiteness")
-# plt.show()
+for p in np.linspace(0.0,5e-7, 50):
+    for P in np.linspace(0.0,5e-7, 50):
+        fit = -fitness(p,r,u,K,f,q,c,e, P,kx=400, ky=368)
+        if fit > 0:
+            x.append(p)
+            y.append(P)
+            z.append(fit)
+# # for p in np.linspace(1e-7,5e-7, 100):
+# #     for P in np.linspace(0.0,1e-7, 50):
+# #         fit = fitness(p,r,u,K,f,q,c,e, P)
+# #         if fit > 0:
+# #             x.append(p)
+# #             y.append(P)
+# #             z.append(fit)
+cm = plt.get_cmap("plasma")
+z = np.array(z).clip(0)
+cNorm = colors.Normalize(vmin=0, vmax= np.max(z))
+scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=cm)
+ax.scatter(x,y,z, color=scalarMap.to_rgba(z))
+ax.set_xlabel("S production")
+ax.set_ylabel("X production")
+ax.set_zlabel("Fiteness")
+plt.show()
 # data = {"p":list(x), "P":list(y), "fit":list(z)}
 # with open("allPp500kx", "w") as f:
 #     json.dump(data, f,  ensure_ascii=False, indent=4)

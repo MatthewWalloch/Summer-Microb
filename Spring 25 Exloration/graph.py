@@ -15,6 +15,7 @@ def graph(filename):
         data = json.load(f)
     fig, ax = plt.subplots(4,2)
     max_G= len(data["fit_Pop_Evo"])
+    fig.suptitle(f"$K_Y=${filename.split('.j')[0].split(' ')[-1]}")
 
     
     ax[0,1].plot(range(max_G), data["fit_Pop_Evo"])
@@ -35,7 +36,7 @@ def graph(filename):
     # ax[3,1].set_title("total production")
     ax[0,0].plot(range(max_G), data["X_pro_Rate_Evo"])
     # ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
-    ax[1,0].set_title("X Production Rate")
+    ax[0,0].set_title("X Production Rate")
 
     ax[1,0].plot(range(max_G), data["pro_Rate_Evo1"])
     # ax[1,0].plot(range(max_G), data["pro_Rate_Evo2"])
@@ -583,7 +584,7 @@ if __name__ == "__main__":
     #             graph(f"Spring 25 Exloration\json\\testing\\{file}")
     #         except:
     #             pass
-    file = "Spring 25 Exloration\json\Production rate testing\\03-08 13-35-10.json"
+    file = "Spring 25 Exloration\json\Production rate testing\\03-23 20-26-56 789.4736842105262.json"
     graph(file)
 
     # plt.rcParams["savefig.directory"]  = "Pictures"
@@ -628,3 +629,7 @@ if __name__ == "__main__":
     # for gen in [250,1250,1500,5000]:
         
     #     graph_last_gen_standard(f"New python\\auto json\\generations for 10\\gen {gen} 3.0.json", "3.0", gen)
+
+    # files = """Spring 25 Exloration\json\Production rate testing\\03-22 05-41-18 210.52631578947367.json,Spring 25 Exloration\json\Production rate testing\\03-22 05-41-55 0.0.json,Spring 25 Exloration\json\Production rate testing\\03-22 05-41-55 105.26315789473684.json,Spring 25 Exloration\json\Production rate testing\\03-22 05-42-59 52.63157894736842.json,Spring 25 Exloration\json\Production rate testing\\03-22 05-43-06 157.89473684210526.json,Spring 25 Exloration\json\Production rate testing\\03-22 18-35-21 421.05263157894734.json,Spring 25 Exloration\json\Production rate testing\\03-22 18-36-01 473.6842105263158.json,Spring 25 Exloration\json\Production rate testing\\03-22 18-37-27 263.1578947368421.json,Spring 25 Exloration\json\Production rate testing\\03-22 18-39-01 368.4210526315789.json,Spring 25 Exloration\json\Production rate testing\\03-22 18-39-07 315.7894736842105.json,Spring 25 Exloration\json\Production rate testing\\03-23 07-31-02 526.3157894736842.json,Spring 25 Exloration\json\Production rate testing\\03-23 07-32-10 578.9473684210526.json,Spring 25 Exloration\json\Production rate testing\\03-23 07-36-15 631.578947368421.json,Spring 25 Exloration\json\Production rate testing\\03-23 07-38-51 684.2105263157895.json,Spring 25 Exloration\json\Production rate testing\\03-23 07-38-58 736.8421052631578.json,Spring 25 Exloration\json\Production rate testing\\03-23 20-26-56 789.4736842105262.json,Spring 25 Exloration\json\Production rate testing\\03-23 20-28-02 842.1052631578947.json,Spring 25 Exloration\json\Production rate testing\\03-23 20-31-38 894.7368421052631.json,Spring 25 Exloration\json\Production rate testing\\03-23 20-33-49 947.3684210526316.json,Spring 25 Exloration\json\Production rate testing\\03-23 20-33-57 1000.0.json"""
+    # for file in files.split(","):
+    #     graph(file)
