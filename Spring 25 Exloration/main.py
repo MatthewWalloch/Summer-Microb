@@ -5,7 +5,8 @@ from graph import *
 import matplotlib.pyplot as plt
 import json
 import joblib
-
+from numba import jit
+from numba.typed import Dict
 
 
 def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
@@ -35,12 +36,30 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         "Ks": 400,
         "decay_RateX": 4e-6,
         "decay_RateY": 4e-6,
-        "Kx": testing,
-        "Y_consumption": 1e-8,
+        "Kx": 400,
+        "Y_consumption": testing,
         "XY_rate": 2e0,
         "median_CellDen": (max_CellDen + min_CellDen) * .5,
         "m": "10.0 ** -7.0 to 1e-4 100 steps"
     }
+    gp_numba = Dict()
+    gp_numba["baseline"] = float(gp["baseline"])
+    gp_numba["coop_Benefit"] = float(gp["coop_Benefit"])
+    gp_numba["coop_Cost"] = float(gp["coop_Cost"])
+    gp_numba["sig_Cost"] = float(gp["sig_Cost"])
+    gp_numba["lam"] = float(gp["lam"])
+    gp_numba["grid_Size"] =float(gp["grid_Size"])
+    gp_numba["size_Pop"] =float(gp["size_Pop"])
+    gp_numba["k"] = float(gp["k"])
+    gp_numba["Ks"] = float(gp["Ks"])
+    gp_numba["decay_RateX"] = float(gp["decay_RateX"])
+    gp_numba["decay_RateY"] = float(gp["decay_RateY"])
+    gp_numba["Kx"] = float(gp["Kx"])
+    gp_numba["Y_consumption"] = float(gp["Y_consumption"])
+    gp_numba["XY_rate"] = float(gp["XY_rate"])
+
+
+
     gp_no_np= {k: gp[k] for k in set(list(gp.keys())) - set(["env_CellDen"])}
     # mutation rate
     mu_Production = 0.01
@@ -54,7 +73,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
 
     
  
-   
+    den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
     # maximum cellular production rate
     max_ProRate = 1e-06
     # minimum cellular production rate
@@ -143,7 +162,7 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
     # initial evaluation
 
     # genotype eval function
-    fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp)
+    fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, den_Matrix, gp_numba)
     
     
     g = 0
@@ -240,10 +259,10 @@ def main_QS(lam, testing, Auto=False, max_G=5000, clonal=True):
         X_pro_Rate_Evo[g] = np.mean(X_pro_Rate)
 
         # genotype eval function
-        fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp)
+        fit_Pop,coopPayoff_Pop,coopCost_Pop,sigCost_Pop = eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate,den_Matrix, gp_numba)
         
         
-        if g % 1 == 0:
+        if g % 500 == 499:
             print(f"{testing}: {g+1}    {(time.time_ns()-t)* 10 **-9}")
             t = time.time_ns()
             data = {"fit_Pop": fit_Pop.tolist(),
@@ -286,10 +305,10 @@ if __name__ == "__main__":
 
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_signal)(sig_Cost * 10**8) for sig_Cost in range(5,105,5))
     # joblib.Parallel(n_jobs=6)(joblib.delayed(vary_genotype)(np.round(lam, decimals=1), True) for lam in np.arange(0,10,step=.1))
-    # joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.linspace(0, 1000, 20))
-    clonal = False
-    # t = time.time_ns()
-    max_G = 5000
-    file = main_QS(1, 400, max_G=max_G, clonal=clonal)
-    graph(file)
+    joblib.Parallel(n_jobs=5)(joblib.delayed(main_QS)(1, p) for p in np.logspace(-10, 0, 20))
+    # clonal = False
+    # # t = time.time_ns()
+    # max_G = 5000
+    # file = main_QS(1, 400, max_G=max_G, clonal=clonal)
+    # graph(file)
     # # graphNoThresholds.graph(file)
