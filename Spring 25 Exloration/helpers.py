@@ -32,36 +32,9 @@ def sample_ztp(lam):
     return 1 + np.random.poisson(lam - t)
 
 
-def eval_genotype_Clonal_two_sig(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp):
-
-    ## this is wrong do not use
-
-    den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
-    m_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
-    production_avg = np.zeros(gp["size_Pop"])
-    X_star_avg = np.zeros(gp["size_Pop"])
-    Y_star_avg = np.zeros(gp["size_Pop"])
-    
-    for m in np.arange(1.5e-7, 1.5e-4, step=100):
-        gp["m"] = m
-        denom1 = gp["m"]-induct_Rate1*den_Matrix+decay_Rate1
-        denom2 = gp["m"]-induct_Rate2*den_Matrix+decay_Rate2
-        production1 = (1-np.exp(denom1 * -gp["gen_time"])) *den_Matrix *pro_Rate1 / denom1
-        production2 = (1-np.exp(denom2 * -gp["gen_time"])) *den_Matrix *pro_Rate2 / denom2
-        total_production = production1 + production2
-        X_star = total_production * den_Matrix / (gp["m"]+gp["decay_RateX"])
-        Y_star = X_star * gp["XY_rate"]/ (gp["Y_consumption"] * den_Matrix + gp["m"]+gp["decay_RateY"])
-        
-        production_avg += np.ones(gp["grid_Size"]).dot(total_production)
-        X_star_avg += np.ones(gp["grid_Size"]).dot(X_star)
-        Y_star_avg += np.ones(gp["grid_Size"]).dot(Y_star)
-    signal_cost = production_avg * gp["sig_Cost"]
-    cost_sum = X_star_avg * gp["coop_Cost"] 
-    benifit_sum = Y_star_avg * gp["coop_Benefit"]
-    fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
-
-    return fitness, benifit_sum, cost_sum, signal_cost
-
+#@jit tag is for numba
+#https://numba.pydata.org/numba-doc/dev/user/jit.html
+# basically pre-compiles function to speed up calculations
 @jit(cache=True, parallel=True, fastmath=True)
 def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, den_Matrix, gp):
     
@@ -70,7 +43,8 @@ def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, den_M
     production = np.zeros(sizepop)
     X_star_avg = np.zeros(sizepop)
     Y_star_avg = np.zeros(sizepop)
-    # production, X_star, Y_star = calculation(den_Matrix, pro_Rate1, induct_Rate1, decay_Rate1, X_pro_Rate, gp["k"], gp["Ks"], gp["decay_RateX"], gp["Kx"], gp["XY_rate"], gp["Y_consumption"], gp["decay_RateY"],gp["size_Pop"])
+    #we chunck up m to speed up claculation
+    # we usually replace the sums with vector caclculations
     for m in np.linspace(1.5e-7, 1.5e-4, num=100):
         npNPRku = (den_Matrix * pro_Rate1*(1+induct_Rate1)) - gp["k"]*(decay_Rate1+m)
         contribute = 4*gp["k"]*den_Matrix*pro_Rate1*(decay_Rate1+m) + (-1*npNPRku)**2
@@ -90,62 +64,42 @@ def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, den_M
     return fitness, benifit_sum, cost_sum, signal_cost
 
 
-# def eval_genotype_Clonal(pro_Rate1, decay_Rate1, induct_Rate1, X_pro_Rate, gp):
-    # den_cube = np.transpose(np.full((gp["size_Pop"],gp["grid_Size"], gp["grid_Size"]), np.linspace(10.0 ** 1.5,10.0 ** 5, num=gp["grid_Size"])), axes=[1,2,0])
+# Baseline function for two signal, however you should double check all the lines to make sure it is right
 
-    # m_cube = np.transpose(np.full((gp["size_Pop"], gp["grid_Size"], gp["grid_Size"]), np.linspace(1.5e-7, 1.5e-4, num=gp["grid_Size"])), axes=[2,1,0])
+#  def eval_genotype_Clonal_two_sig(pro_Rate1, pro_Rate2, decay_Rate1, decay_Rate2, induct_Rate1, induct_Rate2,gp):
 
-    # production_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), pro_Rate1)
-    # decay_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), decay_Rate1)
-    # indcut_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), induct_Rate1)
-    # X_prod_cube = np.full((gp["grid_Size"], gp["grid_Size"], gp["size_Pop"]), X_pro_Rate)
+#     ## this is wrong do not use
 
-    # # 2.2 
-    # npNPRku = (den_cube * production_cube*(1+indcut_cube)) - gp["k"]*(decay_cube+m_cube)
+#     den_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
+#     m_Matrix = np.full((gp["size_Pop"], gp["grid_Size"]), gp["env_CellDen"]).transpose()
+#     production_avg = np.zeros(gp["size_Pop"])
+#     X_star_avg = np.zeros(gp["size_Pop"])
+#     Y_star_avg = np.zeros(gp["size_Pop"])
     
-    # #2
-    # contribute = 4*gp["k"]*den_cube*production_cube*(decay_cube+m_cube) + (-1*npNPRku)**2
-    # #1.5
-    # total_production = (npNPRku + np.sqrt(contribute)) / (2*(decay_cube+m_cube))
-
-    # # 1.8 ish 
-    # X_star = X_prod_cube * total_production / (total_production + gp["Ks"]) * den_cube / (m_cube+gp["decay_RateX"])
-    # # 1.2 ish
-    # Y_star = X_star / (X_star + gp["Kx"]) * gp["XY_rate"]/ (gp["Y_consumption"] * den_cube + m_cube+gp["decay_RateY"])
-    
-    # total_production, X_star, Y_star = calculation(den_cube, production_cube, indcut_cube, decay_cube, m_cube, X_prod_cube, gp["k"], gp["Ks"], gp["decay_RateX"], gp["Kx"], gp["XY_rate"], gp["Y_consumption"], gp["decay_RateY"])
-
-    # signal_cost = total_production.sum(axis=0).sum(axis=0) * gp["sig_Cost"]
-    # cost_sum = X_star.sum(axis=0).sum(axis=0) * gp["coop_Cost"] 
-    # benifit_sum =  Y_star.sum(axis=0).sum(axis=0)* gp["coop_Benefit"]
-    # fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
-    
-    # return fitness, benifit_sum, cost_sum, signal_cost
-
-@jit(nopython=True,cache=True)
-def calculation(den_Matrix, pro_Rate1, induct_Rate1, decay_Rate1, X_pro_Rate, k, ks, decay_RateX, kx, XY_rate, Y_consumption, decay_RateY, size_Pop):
-  
-    production = np.zeros(size_Pop)
-    X_star_avg = np.zeros(size_Pop)
-    Y_star_avg = np.zeros(size_Pop)
-    for m in np.linspace(1.5e-7, 1.5e-4, num=100):
-        npNPRku = (den_Matrix * pro_Rate1*(1+induct_Rate1)) - k*(decay_Rate1+m)
-        contribute = 4*k*den_Matrix*pro_Rate1*(decay_Rate1+m) + (-1*npNPRku)**2
-        total_production = (npNPRku + np.sqrt(contribute)) / (2*(decay_Rate1+m))
-
-        X_star = X_pro_Rate * total_production / (total_production + ks) * den_Matrix / (m+decay_RateX)
-        Y_star = X_star / (X_star + kx) * XY_rate/ (Y_consumption * den_Matrix + m+decay_RateY)
+#     for m in np.linspace(1.5e-7, 1.5e-4, num=100):
+#         gp["m"] = m
+#         denom1 = gp["m"]-induct_Rate1*den_Matrix+decay_Rate1
+#         denom2 = gp["m"]-induct_Rate2*den_Matrix+decay_Rate2
+#         production1 = (1-np.exp(denom1 * -gp["gen_time"])) *den_Matrix *pro_Rate1 / denom1
+#         production2 = (1-np.exp(denom2 * -gp["gen_time"])) *den_Matrix *pro_Rate2 / denom2
+#         total_production = production1 + production2
+#         X_star = total_production * den_Matrix / (gp["m"]+gp["decay_RateX"])
+#         Y_star = X_star * gp["XY_rate"]/ (gp["Y_consumption"] * den_Matrix + gp["m"]+gp["decay_RateY"])
         
-        production += np.sum(total_production)
-        X_star_avg += np.sum(X_star)
-        Y_star_avg += np.sum(Y_star)
-    signal_cost = production * gp["sig_Cost"]
-    cost_sum = X_star * gp["coop_Cost"] 
-    benifit_sum = Y_star * gp["coop_Benefit"]
-    fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
-    return production, X_star_avg, Y_star_avg
+#         production_avg += np.ones(gp["grid_Size"]).dot(total_production)
+#         X_star_avg += np.ones(gp["grid_Size"]).dot(X_star)
+#         Y_star_avg += np.ones(gp["grid_Size"]).dot(Y_star)
+#     signal_cost = production_avg * gp["sig_Cost"]
+#     cost_sum = X_star_avg * gp["coop_Cost"] 
+#     benifit_sum = Y_star_avg * gp["coop_Benefit"]
+#     fitness = gp["baseline"]+benifit_sum-cost_sum-signal_cost
 
-# testing code:
+#     return fitness, benifit_sum, cost_sum, signal_cost
+   
+
+
+
+# testing code may or may not be helpful at all
 if __name__ == "__main__":
     rng = np.random.default_rng()
     print(rng.integers(0, high=10))
