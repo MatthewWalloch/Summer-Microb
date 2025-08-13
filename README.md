@@ -11,4 +11,4 @@ These should be commented in a way that makes sense to what each thing does (hop
 Past esploration is all past code, might have some usefull tidbits but procede with cuation its not commented well
 and might be a little wrong at points. Maybe send me a message if you have any questions about it.
 
-An overleaf with intitial testing and overview is avaliable here: https://www.overleaf.com/read/pzqfyjnvgzdd#3a8c66
+The main notes are in the pdf "Notes on Summer Microb.pdf", an overleaf with version is here: https://www.overleaf.com/read/pzqfyjnvgzdd#3a8c66
